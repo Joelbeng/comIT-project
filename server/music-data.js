@@ -46,4 +46,26 @@ const addUserGenres = (username, userGenres, cbResult) => {
   });
 }
 
-module.exports = { getAllGenres, addUserGenres }
+const getSongsByGenre = (userGenres, cbResult) => {
+  mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
+    if (error) {
+      cbResult({});
+    } else {
+      const demusic = client.db("demusic");
+      const musicCollection = demusic.collection("music");
+
+      musicCollection.find({ genre: { $in: userGenres } }).toArray((error, songs) => {
+
+        if (error) {
+          cbResult({});
+        } else {
+          console.log(songs)
+          cbResult(songs);
+        }
+      });
+    }
+  });
+}
+
+module.exports = { getAllGenres, addUserGenres, getSongsByGenre }
+

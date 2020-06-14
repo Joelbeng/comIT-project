@@ -84,7 +84,7 @@ const getUser = (username, cbResult) => {
           cbResult({ 
             success: true, 
             user: found, 
-          })
+          });
         }
 
         client.close();

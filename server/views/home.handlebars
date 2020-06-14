@@ -1,1 +1,38 @@
-<h1>Hola {{user.username}}</h1>
+<div class="container">
+  <h1>Hola {{user.username}}</h1>
+  {{#each songs}}
+    <div class="track" data-song-id={{ this.name }}> {{!-- Cambiarlo por el id --}}
+      <li>{{this.name}}, {{this.album.name}}, {{this.album.year}}</li>
+    </div>
+  {{/each}}
+</div>
+
+<script>
+
+function showDuration(){
+  const allTracks = document.getElementsByClassName("track");
+  
+  for(let i = 0; i < allTracks.length; i++) {
+    const songId = allTracks[i].getAttribute("data-song-id");
+    
+    const track = new Audio(`music/${songId}.mp3`);
+
+    track.addEventListener("loadedmetadata",() => { 
+      const minutes = add0(parseInt(track.duration / 60));
+      const seconds = add0(parseInt(track.duration % 60));
+      li.textContent += ` duración: ${minutes}:${seconds}`;
+    });
+    
+
+  }
+}
+
+// función que agrega un 0 por delante, si el valor del parametro es menor a 10. 
+const add0 = (time) => {
+  return (time < 10) ? "0" + time.toString() :  time.toString();
+} 
+
+//const songId = tracklist[i].getAttribute("data-song-id"); así lo tego que hacer!
+
+</script>
+

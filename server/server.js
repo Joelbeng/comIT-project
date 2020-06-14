@@ -9,6 +9,8 @@ const auth = require("./auth");
 const music = require("./music-data");
 const app = express();
 
+//pasar todos los req.session a un objeto para manejarlos más prolijos
+
 app.set("views",path.join(__dirname,"views"));
 
 app.engine("handlebars", exphbs({
@@ -37,7 +39,7 @@ app.use(expSession({
 //Vista landing - ruta raíz
 app.get("/", (req, res) => {
 
-  if (req.session.genresSection) {    
+  if (req.session.genresView) {    
     res.redirect("/genres");
     return;
   }
@@ -59,15 +61,26 @@ app.get("/", (req, res) => {
 app.get("/home", (req, res) => {
   
   // Si no eligió los géneros, lo redirijo a "/genres"
-  if (req.session.genresSection) {
+  if (req.session.genresView) {
     res.redirect("/genres");
     return
   }
   
-  if (req.session.logged) { // Falta función que vaya a buscar las canciones con el genero elegido del usuario
-    res.render("home" , { user: req.session.logged });
-  
-    delete req.session.genresSection;
+  if (req.session.logged) { 
+    const userGenres = req.session.userGenres;
+
+    music.getSongsByGenre(userGenres, result => {
+
+      console.log(result); // el problema está en result.songs
+      if (result) {
+        res.render("home" , { user: req.session.logged , songs: result});
+      } else {
+        res.redirect("/error")
+      }
+    });
+
+  } else {
+    res.redirect("/");
   }
 });
 
@@ -83,7 +96,7 @@ app.get("/register", (req, res) => {
 app.get("/genres", (req ,res) => {
   
   //dato que uso por si el usuario no elige los géneros, y entra a "/home" o cierra y abre la página
-  req.session.genresSection = true;
+  req.session.genresView = true;
 
   music.getAllGenres(genres => {
     if (genres) {
@@ -125,12 +138,11 @@ app.post("/login", (req, res) => {
 
 //Post AJAX. Inserta en la base de datos los géneros elegidos por el usuario -- Usar este mismo endpoint para cambiar los géneros más adelante
 app.post("/genres", (req, res) => {
-  const userGenres = req.body;
-  
+  req.session.userGenres = userGenres;
   //recibo como parametro del callback (result) un boolean
   music.addUserGenres( req.session.logged.username, userGenres, result => {
     // Elimino esta propiedad si se pudo guardar en la db los géneros del user
-    if (result) delete req.session.genresSection; 
+    if (result) delete req.session.genresView; 
      
     res.send(result);
   });
@@ -197,6 +209,10 @@ app.post("/register",(req, res) => {
       } 
     });
   });
+});
+
+app.post("/logout",(req, res) => {
+  //no borrar el req.session, porque borro el req.session.userGenres y despúes no anda getSongsByUserGenres, hay que rehacerla la función.
 });
 
 
