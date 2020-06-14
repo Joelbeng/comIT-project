@@ -67,19 +67,18 @@ app.get("/home", (req, res) => {
   }
   
   if (req.session.logged) { 
-    const userGenres = req.session.userGenres;
-
+    const userGenres = req.session.logged.userGenres;
+    console.log(userGenres);
     music.getSongsByGenre(userGenres, result => {
 
-      console.log(result); // el problema está en result.songs
       if (result) {
         res.render("home" , { user: req.session.logged , songs: result});
       } else {
-        res.redirect("/error")
+        res.redirect("/error");
       }
     });
 
-  } else {
+  } else { //lo mando al home con otro layout
     res.redirect("/");
   }
 });
@@ -124,6 +123,7 @@ app.post("/login", (req, res) => {
   auth.login(req.body.username, req.body.password, result => {
     if (result.user) {  
       req.session.logged = result.user;
+      console.log(req.session.logged);
 
       res.redirect("home");
     } else {
@@ -138,9 +138,11 @@ app.post("/login", (req, res) => {
 
 //Post AJAX. Inserta en la base de datos los géneros elegidos por el usuario -- Usar este mismo endpoint para cambiar los géneros más adelante
 app.post("/genres", (req, res) => {
-  req.session.userGenres = userGenres;
+
+  req.session.logged.userGenres = req.body;
+  
   //recibo como parametro del callback (result) un boolean
-  music.addUserGenres( req.session.logged.username, userGenres, result => {
+  music.addUserGenres( req.session.logged.username, req.session.logged.userGenres , result => {
     // Elimino esta propiedad si se pudo guardar en la db los géneros del user
     if (result) delete req.session.genresView; 
      
@@ -196,7 +198,8 @@ app.post("/register",(req, res) => {
   
       if (result) {
         req.session.logged = {
-          username: req.body.username
+          username: req.body.username,
+          userGenres:[]
         }     
         res.redirect("/genres"); 
 

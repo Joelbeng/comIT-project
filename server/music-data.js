@@ -1,6 +1,6 @@
 const mongo = require("./db-const");
 
-//función que busca todos géneros de la página para renderizarlos en el front 
+//Función que busca todos géneros de la página para renderizarlos en el front 
 const getAllGenres = cbResult => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
     
@@ -23,7 +23,7 @@ const getAllGenres = cbResult => {
   });
 }
 
-//función que añade los géneros elegidos por el usuario a la base de datos
+//Función que añade los géneros elegidos por el usuario a la base de datos
 const addUserGenres = (username, userGenres, cbResult) => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error,client) => {
   
@@ -46,6 +46,7 @@ const addUserGenres = (username, userGenres, cbResult) => {
   });
 }
 
+//Función que busca en la db las canciones que coinciden con los géneros elegidos por el usuario
 const getSongsByGenre = (userGenres, cbResult) => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
     if (error) {
@@ -59,7 +60,6 @@ const getSongsByGenre = (userGenres, cbResult) => {
         if (error) {
           cbResult({});
         } else {
-          console.log(songs)
           cbResult(songs);
         }
       });
@@ -68,4 +68,3 @@ const getSongsByGenre = (userGenres, cbResult) => {
 }
 
 module.exports = { getAllGenres, addUserGenres, getSongsByGenre }
-

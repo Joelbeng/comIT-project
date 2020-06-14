@@ -26,7 +26,8 @@ const login = (username, pass, cbResult) => {
             cbResult({
               user: {
                 username: foundUser.userdata.username,
-                avatarImg: foundUser.userdata.profile.pic
+                avatarImg: foundUser.userdata.profile.pic,
+                userGenres: foundUser.userdata.profile.genres
               }
             });
           }
@@ -80,7 +81,6 @@ const getUser = (username, cbResult) => {
             msg: "We couldn't do the task, retry later please"
           });
         } else {
-
           cbResult({ 
             success: true, 
             user: found, 

@@ -1,38 +1,35 @@
 <div class="container">
   <h1>Hola {{user.username}}</h1>
+  <ul>
   {{#each songs}}
-    <div class="track" data-song-id={{ this.name }}> {{!-- Cambiarlo por el id --}}
-      <li>{{this.name}}, {{this.album.name}}, {{this.album.year}}</li>
-    </div>
+    <li>
+      <div class="track-wrapper" data-song-id="{{this.name}}"> {{!-- Cambiarlo por el id --}}
+        <div class="track-img-container">
+          <img src="">
+        </div>
+        <div class="track-info">
+          <p><span>{{this.name}}</span></p>
+          <a href="#">{{this.artist}}</a>
+          <a href="#">{{this.album.name}}, {{this.album.year}}</a>
+          <p class="track-duration"></p>
+        </div>
+      </div>
+    </li>
   {{/each}}
+  </ul>
 </div>
 
-<script>
+<div id="player" data-id="">
+  <div id="track-bar">
+    <div id="track-progress">
+    </div>
+  </div>
 
-function showDuration(){
-  const allTracks = document.getElementsByClassName("track");
-  
-  for(let i = 0; i < allTracks.length; i++) {
-    const songId = allTracks[i].getAttribute("data-song-id");
-    
-    const track = new Audio(`music/${songId}.mp3`);
+  <button id="previous-btn" onclick="playPrevious()">PREVIOUS</button>
+  <button id="stop-btn">PLAY</button>
+  <button id="previous-btn">PLAY</button>
+  <button id="next-btn" onclick="playNext()">NEXT</button>
+  <p id="track-current-time"></p>
+</div>
 
-    track.addEventListener("loadedmetadata",() => { 
-      const minutes = add0(parseInt(track.duration / 60));
-      const seconds = add0(parseInt(track.duration % 60));
-      li.textContent += ` duración: ${minutes}:${seconds}`;
-    });
-    
-
-  }
-}
-
-// función que agrega un 0 por delante, si el valor del parametro es menor a 10. 
-const add0 = (time) => {
-  return (time < 10) ? "0" + time.toString() :  time.toString();
-} 
-
-//const songId = tracklist[i].getAttribute("data-song-id"); así lo tego que hacer!
-
-</script>
-
+<script src="script/player.js"></script>
