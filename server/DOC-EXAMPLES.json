@@ -1,0 +1,112 @@
+/* users Collection */
+
+{
+  "userdata": 
+    {
+      "username" : "Juan",
+      "password": "contraseña",
+      "mail":"juan2009@gmiail",
+      "profile": 
+        {
+          "pic":"mifoto.jpg",
+          "bio":"Artista basado en Bs. As.",
+          "genres":["Electrónica","Reggae"]  //genéros elegidos al principio que le gustan
+        }
+    },
+  "music": 
+    {
+      "albums": [
+        {
+          "name":"Mi 1 Album",
+          "genre":["rock","metal"], //puede elegir más de un género
+          "cover":"asasd.jpg",
+          "tracks":[
+            {
+              "id":78675,
+              "name":"canción uno",
+              "genre":["rock","metal"],
+              "file":"music/canciónuno.mp3",
+              "likes":0
+            },
+            {
+              "id":78676,
+              "name":"canción dos",
+              "genre":["rock","metal"],
+              "file":"music/cancióndos.mp3",
+              "likes":2
+            }
+          ]
+        }],     
+      "singles": [ //son las canciones que no pertenecen a ningún album
+        {   
+          "id":21313,
+          "name":"mysingle",
+          "genre":["pop"],
+          "file":"music/TRACKDONE.mp3",
+          "likes":4,
+          "demo":true   // este dato es el que nos dice si la canción busca colaborador
+        },
+        {
+          "id":21318,
+          "name":"my second single",
+          "genre":["cumbia","reggaeton"],
+          "file":"music/cancion_finalMASTER.mp3",
+          "likes":14,
+          "demo":false
+        }
+      ]
+    },
+  "interaction": 
+    {
+      "likes":[76324,23412,24234,98765], // todas las canciones que le di like, las guardo por su id
+      "followers": 
+        {
+          "amount" :2,
+          "users" :["jorge","Ricky"] 
+        },
+      "following": 
+        {
+          "amount" :4,
+          "users" :["travis","M.N.V","trini","pato"]
+        },
+        "collaborations":
+          {
+          "petitions_from":{
+            "song_id":[12341], // Peticiones de colaborar que recibo.Si rechazo la petición, se borran ambos datos
+            "artist":["user1"]
+          },
+          "petitions_to":{
+            "song_id":[12341], // Peticiones de colaborar que envío.
+            "artist":["user1"]
+          }
+        }      
+    }
+}
+
+/*music collection*/
+
+//USAR GUID PARA EL ID DE CADA CANCIÓN
+
+{
+  "id":1,
+  "name":"Calma",
+  "genre":["Reggae"],
+  "artist": "Mad Era",
+  "album":
+    {
+      "name":"El Poder del Camino Era",
+      "year":2017
+    },
+  "file":"music/Calma.mp3",
+  "img":""
+}
+
+{
+  "id":14,
+  "name":"A Mil",
+  "genre":["Rock"],
+  "artist": "Sacha Manzur",
+  "demo":true,
+  "file":"music/A Mil.mp3",
+  "img":""
+}

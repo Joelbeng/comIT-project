@@ -1,0 +1,31 @@
+<form method="POST" action="/register">
+  <div class="form"> 
+      <a class="close-btn">X</a>
+      
+      <label for="input-email">Mail</label>
+      <input type="email" name="email" id="input-email">
+      
+      <label for="input-username">Username</label>
+      <input type="username" name="username" id="input-username">
+      
+      <label for="input-password">Password</label>
+      <input type="password" name="pass" id="input-password">
+      
+      <label for="pass-repeat">Confirm your Password</label>
+      <input type="password" name="passrepeat" id="pass-repeat">
+      
+      {{#if msg}}
+      <p class="error-msg">{{msg.msg}}</p>
+      {{/if}}
+      
+      <input type="submit" value="Register">
+  </div>
+</form>   
+
+<script>
+ 
+  document.getElementsByClassName("close-btn")[0].addEventListener("click", () => {
+    window.location.href = "/";
+  });
+
+</script>

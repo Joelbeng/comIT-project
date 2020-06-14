@@ -1,0 +1,25 @@
+<form method="POST" action="/login">
+  <div class="form">
+    
+    <a class="close-btn">X</a> <!-- Post a /login-->
+    <label for="input-l-user">Mail / Username</label>
+    <input type="text" name="username" id="input-l-user">
+    
+    <label for="l-password">Password</label>
+    <input type="password" name="password" id="input-l-password">
+    
+    {{#if msg}}
+    <p class="error-msg">{{msg.msg}}</p>
+    {{/if}}
+    
+    <input type="submit" value="Log In">
+  </div>
+</form>
+
+<script>
+
+  document.getElementsByClassName("close-btn")[0].addEventListener("click", () => {
+    window.location.href = "/";
+  });
+
+</script>
