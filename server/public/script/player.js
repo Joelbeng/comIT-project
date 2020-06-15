@@ -1,6 +1,7 @@
 let currentTrackDiv; // usar esta var para almacenar el div que hizo click, y luego usarlo en updateTime(); para pasarle el currentTime al track-wrapper
 let songLoaded;
 let interval; // ¿por qué no anda con el scope de la función?
+const playBtn = document.getElementById("play-btn");
 
 window.onload = () => {
   showDuration();
@@ -71,12 +72,12 @@ const playPause = () => {
   if(!songLoaded) return; //songLoaded es undefined, y así evito el error
   if (songLoaded.paused) {
     songLoaded.play();
+    playBtn.textContent="PAUSE";
     //hacer que el botón play sea pausa
     interval = setInterval(updateTime, 500);
-    let tial = checkCurrentTrack();
-    console.log(tial);
   } else {
     songLoaded.pause();
+    playBtn.textContent="PLAY";
     //hacer que el botón pause sea play
     window.clearInterval(interval);
   }
@@ -186,3 +187,5 @@ bar.addEventListener("click", function(ev) {
   setBarProgress();
 });
 }
+
+//Falta función de volumen songLoaded.volume!!

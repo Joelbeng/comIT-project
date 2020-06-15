@@ -1,0 +1,54 @@
+<div class="container">
+  <div class="upload-container">
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+      <div class="file-select">  
+        <label for="new-song">Choose your song</label>
+        <input type="file" name="newsong" id="new-song" accept="audio/mp3" multiple>
+      </div>  
+      <div class="new-song-img">
+        <label for="upload-song-img">Choose image</label>
+        <input type="file" name="songimg" id="upload-song-img" accept="image/*">
+      </div>
+      <div class="new-song-info">
+      <label for="new-song-genre">Genre:</label>
+        <select id="new-song-genre" name="songGenre" multiple required>
+          <option value="" selected disabled>Select the genre</option>
+          {{#each genres as |genre|}}
+          <option value="{{genre}}">{{genre}}</option>
+          {{/each}}
+        </select>  
+      </div>
+      <a href="/upload">Cancel</a>
+      <input type="submit" value="Done"> 
+    </form>
+  </div>
+</div>
+
+<script>
+//falta hacer que desaparezcla el choose your songs cuando ya los cargo
+//hacer más lindo el multiple select
+//eliminar los input y los labels antes de volver a ejecutar la funcion
+
+  document.getElementById("new-song").onchange = showNameInput;
+
+  function showNameInput(){
+    const fileInput = document.getElementById("new-song");
+    const files = fileInput.files;
+
+    for(let i = 0; i < files.length; i++){
+      const label= document.createElement("label");
+      label.setAttribute("for","song-name");
+      label.textContent = `${i+1}. name:`; 
+
+      const input = document.createElement("input");
+      input.setAttribute("type","text");
+      input.setAttribute("name","songname");
+      input.setAttribute("id","song-name");
+      input.setAttribute("required","true");
+
+      document.getElementsByClassName("new-song-info")[0].appendChild(label);
+      document.getElementsByClassName("new-song-info")[0].appendChild(input);
+    }
+  }
+
+</script>

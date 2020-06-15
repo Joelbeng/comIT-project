@@ -1,33 +1,62 @@
 const HTTP_PORT = 8000;
 
+//paquetes npm importados
 const path = require("path");
 const exphbs = require("express-handlebars"); 
 const bodyParser = require("body-parser")
-const express = require("express");
 const expSession = require("express-session");
+const express = require("express");
+const multer = require("multer");
+const { v4: uuidv4 } = require('uuid');
+
+
+//modulos propios importados
 const auth = require("./auth");
 const music = require("./music-data");
-const app = express();
 
 //pasar todos los req.session a un objeto para manejarlos más prolijos
 
+const app = express();
+
+//seteo de handlebars
 app.set("views",path.join(__dirname,"views"));
 
 app.engine("handlebars", exphbs({
-  defaultLayout: "main",
+  defaultLayout: "unregistered",
   layoutsDir: path.join(__dirname,"views/layouts")
 }));
 
-//seteo de handlebars
 app.set("view engine", "handlebars");
+
+// Configuración de almacenamiento de canción recibida, con Multer
+const uploadStorage = multer.diskStorage({
+  
+  destination: (req, file, setFolderCallback) => {
+    
+    if (file.fieldname == "newsong") {     
+      setFolderCallback(null, './server/public/music');
+    } else {
+      setFolderCallback(null, './server/public/img/song');
+  }
+
+},
+  
+  filename: (req, file, setFilenameCallback) => {
+    setFilenameCallback(null, req.body.songname + path.extname(file.originalname));
+  }
+});
+
+// Se crea el middleware con ese storage.
+const upload = multer({ storage: uploadStorage });
 
 // Middleware para rutas a recursos estáticos. 
 app.use(express.static(path.join(__dirname, "public")));
 
-//seteo de body-parser para Content-Type "json"
+// Body-parser para Content-Type "json"
 app.use(bodyParser.json());
-// Body Parser para Content-Type "application/x-www-form-urlencoded"
+// Body Parser para Content-Type "application/x-www-form-urlencoded"(<forms>)
 app.use(bodyParser.urlencoded({ extended: true }));
+// Body Parser para Content-Type "application/x-www-form-urlencoded"
 
 // Configuración del objeto de sesión
 app.use(expSession({
@@ -39,6 +68,7 @@ app.use(expSession({
 //Vista landing - ruta raíz
 app.get("/", (req, res) => {
 
+  //Si el usuario se estaba registrando y cierra el navegador, lo vuelvo a mandar a la misma instancia
   if (req.session.genresView) {    
     res.redirect("/genres");
     return;
@@ -55,13 +85,12 @@ app.get("/", (req, res) => {
     delete req.session.regmessage;
   }
 
-  res.render("landing");
+  res.render("landing",{layout:"login"});
 });
 
 app.get("/home", (req, res) => {
   
-  // Si no eligió los géneros, lo redirijo a "/genres"
-  if (req.session.genresView) {
+  if (req.session.logged && req.session.genresView) {
     res.redirect("/genres");
     return
   }
@@ -72,9 +101,13 @@ app.get("/home", (req, res) => {
     music.getSongsByGenre(userGenres, result => {
 
       if (result) {
-        res.render("home" , { user: req.session.logged , songs: result});
+        res.render("home" , 
+        { layout:"registered", 
+          user: req.session.logged , 
+          songs: result
+        }); 
       } else {
-        res.redirect("/error");
+        res.render("home");
       }
     });
 
@@ -84,11 +117,11 @@ app.get("/home", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login", { msg: req.session.logmessage });
+  res.render("login", {layout:"login", msg: req.session.logmessage });
 });
 
 app.get("/register", (req, res) => {
-  res.render("register", { msg: req.session.regmessage });
+  res.render("register", {layout:"login", msg: req.session.regmessage });
 });
 
 //Muestra todos los géneros para que el usuario elija sus favoritos
@@ -109,8 +142,23 @@ app.get("/genres", (req ,res) => {
 
 });
 
+app.get("/upload", (req, res) => {
+  
+  //Ejecuto la función para muestrar en el front un select con todos los géneros
+  music.getAllGenres(genres => {
+    if (genres) {
+      res.render("upload", {
+        genres: genres
+      });
+    } else {
+      res.redirect("/error");
+    }
+  });
+
+})
+
 app.get("/explore", (req, res) => {
-  res.send("Explora un poco");
+  res.render("home");
 });
 
 app.get("/error", (req, res) => {
@@ -215,7 +263,16 @@ app.post("/register",(req, res) => {
 });
 
 app.post("/logout",(req, res) => {
-  //no borrar el req.session, porque borro el req.session.userGenres y despúes no anda getSongsByUserGenres, hay que rehacerla la función.
+  req.session.destroy();
+});
+
+//Post que recibe la canción subida por el usuario
+app.post("/upload", upload.fields([{name:"newsong"},{name:"songimg"}]), (req, res) => {
+  console.log(req.file);
+  
+  //El problema es que puedo subir una canción, pero no un album. Porque si subo más de una canción no tengo acceso al req.body.songname (name del input en donde el usuario ingresa el nombre de la canción), me lo retorna como undefined. También desde en el endpoint post donde recibo la data del submit no tengo acceso al req.file, me tira siempre undefined, suba una canción o más que una. Me volví loco tratando de acceder al req.song.name[i] haciendo un for, probando cosas pero nada. Como podría acceder a cada req.body.songname?
+  
+  //Si solo subo una canción puedo agregarle el id como quería en la base de datos, y también tener la referencia en el user de esa canción con el id, pero como la canción se me guarda en la carpeta con el req.body.songname(el nomre que le pone el usuario) cuando la base de datos va a buscar esa canción no la encuentra. Voy a tener que desistir de eso del id me parece y solo manejarme con el req.body.songname,aunque se que es superdebil porque se puede pisar muy rápido. La cosa es que no puedo subir albums, y así dejo afuera algo bastante crucial en una app de música.
 });
 
 

@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
 </head>
+<link rel="stylesheet" href="css/style.css">
 <body>
   <header>
     <div class="container landing-header">
-      <p>LOGO</p>
+      <nav>
+        <a href="/home">DEMusic</a>    
+        <a href="/library">Library</a>
+        <input type="text" placeholder="Search songs, artist, ...">
+        <a href="/upload">Upload</a>
+        <img src="{{user.profilePic}}">
+        <a href="/profile">{{user.username}}</a></li>
+      </nav>
     </div>
-    <nav>
-      <ul>
-        <li>Librería</li>
-        <li>Buscador</li>
-        <li>Subir</li>
-        <li>Colaborar</li>
-      </ul>
-    </nav>
   </header>
   {{{body}}}
 </body>

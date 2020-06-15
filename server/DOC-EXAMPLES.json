@@ -13,49 +13,7 @@
           "genres":["Electrónica","Reggae"]  //genéros elegidos al principio que le gustan
         }
     },
-  "music": 
-    {
-      "albums": [
-        {
-          "name":"Mi 1 Album",
-          "genre":["rock","metal"], //puede elegir más de un género
-          "cover":"asasd.jpg",
-          "tracks":[
-            {
-              "id":78675,
-              "name":"canción uno",
-              "genre":["rock","metal"],
-              "file":"music/canciónuno.mp3",
-              "likes":0
-            },
-            {
-              "id":78676,
-              "name":"canción dos",
-              "genre":["rock","metal"],
-              "file":"music/cancióndos.mp3",
-              "likes":2
-            }
-          ]
-        }],     
-      "singles": [ //son las canciones que no pertenecen a ningún album
-        {   
-          "id":21313,
-          "name":"mysingle",
-          "genre":["pop"],
-          "file":"music/TRACKDONE.mp3",
-          "likes":4,
-          "demo":true   // este dato es el que nos dice si la canción busca colaborador
-        },
-        {
-          "id":21318,
-          "name":"my second single",
-          "genre":["cumbia","reggaeton"],
-          "file":"music/cancion_finalMASTER.mp3",
-          "likes":14,
-          "demo":false
-        }
-      ]
-    },
+  "songs":[12313,14354,23435,12344,96561,23456],     
   "interaction": 
     {
       "likes":[76324,23412,24234,98765], // todas las canciones que le di like, las guardo por su id
@@ -85,13 +43,11 @@
 
 /*music collection*/
 
-//USAR GUID PARA EL ID DE CADA CANCIÓN
-
 {
-  "id":1,
+  "id":12313,
   "name":"Calma",
   "genre":["Reggae"],
-  "artist": "Mad Era",
+  "artist": "Juan",
   "album":
     {
       "name":"El Poder del Camino Era",
@@ -102,10 +58,10 @@
 }
 
 {
-  "id":14,
+  "id":14354,
   "name":"A Mil",
   "genre":["Rock"],
-  "artist": "Sacha Manzur",
+  "artist": "Juan",
   "demo":true,
   "file":"music/A Mil.mp3",
   "img":""
