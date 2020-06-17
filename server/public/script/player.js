@@ -16,7 +16,7 @@ function showDuration() {
   for (let i = 0; i < trackDiv.length; i++) {
     const songId = trackDiv[i].getAttribute("data-song-id");
     
-    const track = new Audio(`/music/${songId}.mp3`);
+    const track = new Audio(`${songId}`);
 
     track.addEventListener("loadedmetadata",() => { 
       const minutes = add0(parseInt(track.duration / 60));
@@ -59,7 +59,7 @@ function getSong() {
 }
 
 const loadTrack = song => {
-  songLoaded = new Audio(`/music/${song}.mp3`);
+  songLoaded = new Audio(`${song}`);
   
   songLoaded.addEventListener("progress", () => {
     playPause();

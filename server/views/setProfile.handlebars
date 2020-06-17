@@ -1,0 +1,16 @@
+<div class="container">
+  <div class="set-profile-box">
+    <p>Let other artists know about you, {{user.username}}</p>
+    <form method="post" action="/setProfile" enctype="multipart/form-data">
+      <div class="photo-selection">
+        <input type="file" name="profilePic" value="add photo" accept="image/*" required>
+      </div>
+      <div class="bio-text">
+        <h5>Bio:</h5>
+        <textarea name="bio" cols="70" row="5" required></textarea>
+      </div>
+      <a href="/home">Later</a>
+      <input type="submit" value="Ready">
+    </form>
+  </div>
+</div>

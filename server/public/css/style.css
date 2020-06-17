@@ -3,6 +3,11 @@
   padding:0;
 }
 
+body {
+  background-color: #e4cfcf;
+  font-family: 'Noto Sans', sans-serif;
+}
+
 li{
   list-style: none;
 }
@@ -20,8 +25,11 @@ button {
   cursor:pointer;
 }
 
-/* landing*/
+/* landing */
 
+h1{
+  margin-top:1em;
+}
 .landing-header {
   display: flex;
   justify-content: space-between;
@@ -68,8 +76,14 @@ button {
 
 #join-btn {
   display: inline-block;
-  background-color:cyan;
+  background-color:#233f40;  
   padding:10px 30px;
+  color:#fff;
+  text-decoration: none;
+}
+
+a {
+  text-decoration:none;
 }
 
 /*Forms*/
@@ -107,10 +121,79 @@ input[type="submit"] {
   position: relative;
 }
 
-/* PLAYER */
-#track-bar {
-  width:400px;
+/* home */
+
+.home-header {
+  display:flex;
+}
+
+.home-nav{
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+}
+.header-left{
+  display: flex;
+  width: 30%;
+  align-items: center;
+}
+
+.header-left a {
+  margin-left: 30%;
+}
+
+#logo {
+  margin-right:3%;
+} 
+
+.header-middle{
+  display: flex;
+  width: 35%;
+  margin-right: 4%;
+  align-items: center;
+}
+
+.header-middle input{
+  height: 30%;
+  width: 70%;
+}
+
+.header-middle a {
+  margin-left: 10%;
+}
+
+.header-right{
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 30%;
+}
+
+.header-right img {
+  max-width: 50px;
   display: block;
+  border-radius: 26px;
+  margin-left: 10px;
+}
+
+
+/* PLAYER */
+
+#player {
+  position:fixed;
+  bottom:0;
+  width: 100%;
+  text-align:center;
+  padding:1.5em;
+  background: #233f40;  
+}
+
+#track-bar {
+  width: 700px;
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 15px;
   background-color: rgb(175, 175, 175);
   border-radius: 10px;
 }
@@ -122,8 +205,91 @@ input[type="submit"] {
   border-radius: 10px;
 }
 
+.track-info {
+  margin-left:2em;
+}
+
+.track-length {
+  margin-top:2em;
+}
+
+/* songs */
+
+.track-wrapper {
+  border: solid 1px;
+  cursor: pointer;
+  padding: 1em;
+  background-color: #d4d4d4;
+  display:flex;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.track-li {
+  margin: 50px 0px;
+}
+
+.track-wrapper img {
+  max-width: 80px;
+}
+
 /*genres view*/
 
 .active-genre{
   background-color:rgba(194, 79, 135, 0.5)
 }
+
+ .upload-container form{
+  text-align:center;
+  margin-top:5em;
+}
+
+.upload-container input[type="submit"] {
+  margin-top: 40px;
+    margin-bottom: 0;
+    position: relative;
+    margin-left: 5em;
+    padding: 6px 25px;
+}
+
+.file-select {
+  margin-bottom:2em;
+}
+
+.new-song-img {
+  margin-bottom:2em;
+}
+
+select {
+  height: 200px;
+  width: 150px;
+  text-align: center;
+}
+
+.user-info {
+  display:flex;
+  margin-top:3em;
+}
+
+.user-info img {
+  max-width: 240px;
+}
+
+.album-pic img {
+  max-width:240px;
+}
+
+.user-bio {
+  margin-left:2em;
+}
+
+.user-bio h3 {
+  font-size:36px;
+  margin-bottom:4em;
+}
+
+.user-bio p{
+  font-size: 24px;
+}
+
+

@@ -6,13 +6,12 @@ const exphbs = require("express-handlebars");
 const bodyParser = require("body-parser")
 const expSession = require("express-session");
 const express = require("express");
-const multer = require("multer");
-const { v4: uuidv4 } = require('uuid');
-
+const multer = require("multer")
 
 //modulos propios importados
 const auth = require("./auth");
 const music = require("./music-data");
+const profile = require("./profile");
 
 //pasar todos los req.session a un objeto para manejarlos más prolijos
 
@@ -32,18 +31,26 @@ app.set("view engine", "handlebars");
 const uploadStorage = multer.diskStorage({
   
   destination: (req, file, setFolderCallback) => {
-    
+
     if (file.fieldname == "newsong") {     
       setFolderCallback(null, './server/public/music');
+
+    } else if (file.fieldname == "songimg") {
+      setFolderCallback(null, './server/public/img/tracks');
+    
     } else {
-      setFolderCallback(null, './server/public/img/song');
-  }
+      setFolderCallback(null, './server/public/img/profile');
+    } 
 
 },
   
   filename: (req, file, setFilenameCallback) => {
-    setFilenameCallback(null, req.body.songname + path.extname(file.originalname));
-  }
+    if (file.fieldname == "newsong" || file.fieldname == "songimg") {
+      setFilenameCallback(null, req.session.logged.username.toUpperCase()+"_"+file.originalname);
+    } else {
+      setFilenameCallback(null, req.session.logged.username.toUpperCase() +path.extname(file.originalname));
+    }
+  }  
 });
 
 // Se crea el middleware con ese storage.
@@ -69,7 +76,7 @@ app.use(expSession({
 app.get("/", (req, res) => {
 
   //Si el usuario se estaba registrando y cierra el navegador, lo vuelvo a mandar a la misma instancia
-  if (req.session.genresView) {    
+  if (req.session.genresView && req.session.user == undefined) {    
     res.redirect("/genres");
     return;
   }
@@ -89,22 +96,24 @@ app.get("/", (req, res) => {
 });
 
 app.get("/home", (req, res) => {
-  
-  if (req.session.logged && req.session.genresView) {
+  req.session.user = true; // parche para quedar enganchado en la vista genre
+
+  if (req.session.logged && req.session.genresView && !req.session.user) {
     res.redirect("/genres");
     return
   }
-  
+
   if (req.session.logged) { 
     const userGenres = req.session.logged.userGenres;
-    console.log(userGenres);
+
     music.getSongsByGenre(userGenres, result => {
 
       if (result) {
         res.render("home" , 
         { layout:"registered", 
-          user: req.session.logged , 
-          songs: result
+          user: req.session.logged, 
+          songs: result,
+          player:true
         }); 
       } else {
         res.render("home");
@@ -112,7 +121,7 @@ app.get("/home", (req, res) => {
     });
 
   } else { //lo mando al home con otro layout
-    res.redirect("/");
+    res.redirect("/home",{ layout:"unregistered", player:true });
   }
 });
 
@@ -133,7 +142,10 @@ app.get("/genres", (req ,res) => {
   music.getAllGenres(genres => {
     if (genres) {
       res.render("genres", {
-        genres: genres
+        layout:"registered",
+        user:req.session.logged.username,
+        genres: genres,
+        player:false
       });
     } else {
       res.redirect("/error");
@@ -148,7 +160,10 @@ app.get("/upload", (req, res) => {
   music.getAllGenres(genres => {
     if (genres) {
       res.render("upload", {
-        genres: genres
+        layout:"registered",
+        user: req.session.logged,
+        genres: genres,
+        player:false
       });
     } else {
       res.redirect("/error");
@@ -171,8 +186,6 @@ app.post("/login", (req, res) => {
   auth.login(req.body.username, req.body.password, result => {
     if (result.user) {  
       req.session.logged = result.user;
-      console.log(req.session.logged);
-
       res.redirect("home");
     } else {
         req.session.logmessage = {
@@ -186,13 +199,12 @@ app.post("/login", (req, res) => {
 
 //Post AJAX. Inserta en la base de datos los géneros elegidos por el usuario -- Usar este mismo endpoint para cambiar los géneros más adelante
 app.post("/genres", (req, res) => {
-
   req.session.logged.userGenres = req.body;
   
   //recibo como parametro del callback (result) un boolean
-  music.addUserGenres( req.session.logged.username, req.session.logged.userGenres , result => {
+  music.addUserGenres( req.session.logged.username, req.session.logged.userGenres , req.session.user, result => {
     // Elimino esta propiedad si se pudo guardar en la db los géneros del user
-    if (result) delete req.session.genresView; 
+    if (result.sucess) delete req.session.genresView; 
      
     res.send(result);
   });
@@ -247,6 +259,7 @@ app.post("/register",(req, res) => {
       if (result) {
         req.session.logged = {
           username: req.body.username,
+          avatarImg:"profile.png",
           userGenres:[]
         }     
         res.redirect("/genres"); 
@@ -262,18 +275,189 @@ app.post("/register",(req, res) => {
   });
 });
 
-app.post("/logout",(req, res) => {
+app.get("/signOut", (req, res) => {
+  res.render("landing", {layout:"login"});
   req.session.destroy();
 });
 
 //Post que recibe la canción subida por el usuario
 app.post("/upload", upload.fields([{name:"newsong"},{name:"songimg"}]), (req, res) => {
-  console.log(req.file);
+
+  //Chequeo si subió alguna img el usuario para la canción o album  
+  if (req.files.songimg) {
+    songimg = req.files.songimg[0].filename;
+   } else {
+    songimg = "song.png";
+   }
   
-  //El problema es que puedo subir una canción, pero no un album. Porque si subo más de una canción no tengo acceso al req.body.songname (name del input en donde el usuario ingresa el nombre de la canción), me lo retorna como undefined. También desde en el endpoint post donde recibo la data del submit no tengo acceso al req.file, me tira siempre undefined, suba una canción o más que una. Me volví loco tratando de acceder al req.song.name[i] haciendo un for, probando cosas pero nada. Como podría acceder a cada req.body.songname?
+  let songsFileNames =[];
+
+  //guardo los filenames de las canciones subidas por el user en un array
+  for (let i = 0; i < req.files.newsong.length; i++) {
+    songsFileNames.push(req.files.newsong[i].filename);
+  }
+
+  //Si hay más de una canción inserto un album, si no inserto single
+  if (songsFileNames.length > 1) {
   
-  //Si solo subo una canción puedo agregarle el id como quería en la base de datos, y también tener la referencia en el user de esa canción con el id, pero como la canción se me guarda en la carpeta con el req.body.songname(el nomre que le pone el usuario) cuando la base de datos va a buscar esa canción no la encuentra. Voy a tener que desistir de eso del id me parece y solo manejarme con el req.body.songname,aunque se que es superdebil porque se puede pisar muy rápido. La cosa es que no puedo subir albums, y así dejo afuera algo bastante crucial en una app de música.
+    //inserto documentos con la info de cada canción en la colección music.Recibo boolean 
+    music.insertAlbum(req.session.logged.username, req.body.songname, songsFileNames, req.body.songGenre,req.body.albumname, req.body.albumyear, songimg, result => {
+      if (result) {
+        // si recibo true en el callback, inserto el la colección users, el filename de cada canción para tener referencia
+        music.insertSongsInUserCol(req.session.logged.username, songsFileNames,req.body.albumname, result => {
+          if (result) {
+            music.insertAlbuminUserCol(req.session.logged.username, req.body.albumname, result => {
+              if (result) {
+                console.log("Your song has been uploaded");
+                res.redirect("/userProfile")
+              } else {
+                //llevarlo a error, setTime out que no se pudo y al home    
+              }
+            });
+          
+            //setTime interval que le diga que se subieron las canciones, y mandarlo a su perfil
+          } else {
+            //llevarlo a error, setTime out que no se pudo y al home
+          }
+        });
+      } else {
+        //llevarlo a error, setTime out que no se pudo y al home
+      }
+    });
+
+  } else {
+
+    music.insertSingle(req.session.logged.username, req.body.songname, songsFileNames, req.body.songGenre, songimg, result => {
+      if (result) {
+        
+        music.insertSongsInUserCol(req.session.logged.username, songsFileNames, result => {
+          if (result) {
+            console.log("Your song has been uploaded")
+            //setTime interval que le diga que se subieron las canciones, y mandarlo a su perfil
+          } else{
+            //llevarlo a error, setTime out que no se pudo y al home
+          }
+        });
+      } else {
+        //llevarlo a error, setTime out que no se pudo y al home
+      }
+    });
+  }
 });
+
+app.get("/userProfile", (req, res) => {
+
+  auth.getUser(req.session.logged.username, result => {
+    
+    if (!result.success) {
+      res.redirect("/error");
+      return;
+    }
+  
+    music.getSongsByFilter({artist: req.session.logged.username}, songs => {
+      if (songs) {
+        res.render("userProfile",{
+          layout:"registered",
+          user:req.session.logged,
+          songs,
+          bio:result.user.userdata.profile,
+          player:true
+        }); 
+      }
+    });
+  })
+});
+
+app.get("/setProfile", (req, res) => {
+  res.render("setProfile", 
+    { 
+      layout:"registered",
+      user:req.session.logged.username, 
+      player:false 
+    });
+});
+
+app.post("/setProfile",upload.single("profilePic"), (req, res) => {
+  
+  profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.bio":req.body.bio }, result => {
+    if (result) {
+      profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.pic":req.file.filename }, result => {
+        if (result) {
+          //piso el avatarImg que tenía como default
+          req.session.logged.avatarImg = req.file.filename;
+          res.redirect("/home");
+        } else {
+          ////lo mando al home pero le digo que hubo un error
+        }
+      });
+    } else {
+      //lo mando al home pero le digo que hubo un error
+    }
+  });
+
+}); 
+
+app.get("/profile/:artist", (req, res) => {
+                            
+  if (req.params.artist === req.session.logged.username) {
+    res.redirect("/userProfile");
+    return;
+  }
+
+  auth.getUser(req.params.artist, user => {
+    if (user) {
+      music.getSongsByFilter({ artist: req.params.artist }, songs => {
+        if (songs) {
+          res.render("artist",
+            { 
+              layout:"registered", 
+              songs, 
+              player:true, 
+              user,
+              username:req.session.logged
+            }
+          );
+        } else {
+          res.redirect("/error");
+        }
+      });
+    } else {
+      res.redirect("/error");
+    }
+  });
+  
+});
+
+app.get("/album/:album", (req,res) => {
+console.log(req.params.album);
+  auth.getUserByAlbum(req.session.logged.username, req.params.album, user => {
+    
+    if (user) {
+      music.getSongsByAlbum(req.params.album, songs => {
+        if (songs) {
+          console.log(user);
+          res.render("album",
+            { 
+              layout:"registered", 
+              albumName:songs[0].album.name,
+              albumYear:songs[0].album.year,
+              albumCover:songs[0].img,
+              songs, 
+              player:true, 
+              user:req.session.logged,
+              artist:user
+            }
+          );
+        } else {
+          res.redirect("/error");
+        }
+      });
+    } else {
+      res.redirect("/error");
+    }
+  });
+});
+
 
 
 app.listen(HTTP_PORT, () => {

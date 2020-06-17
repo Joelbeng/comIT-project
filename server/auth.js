@@ -93,6 +93,38 @@ const getUser = (username, cbResult) => {
   });
 }
 
+const getUserByAlbum = (username, albumName, cbResult) => {
+  mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
+    if (error) {
+      cbResult({ 
+        success:false,
+        msg: "This operation couldn't be done, retry later please"
+      });
+    } else {
+      const demusic = client.db("demusic");
+      const usersCollection = demusic.collection("users");
+
+      usersCollection.findOne({ useralbums: albumName}, (error, found) => {
+
+        if (error) {
+          cbResult({ 
+            success:false,
+            msg: "We couldn't do the task, retry later please"
+          });
+        } else {
+          cbResult({ 
+            success: true, 
+            user: found, 
+          });
+        }
+
+        client.close();
+      });
+    }
+  });
+}
+
+
 const registerUser = (useremail, username, password, cbResult) => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
     if (error) {
@@ -107,11 +139,13 @@ const registerUser = (useremail, username, password, cbResult) => {
           password: password,
           mail: useremail,
           profile: {
-            pic: "",
+            pic: "profile.png",
             bio: "",
             genres:[]
           }
         },
+        usertracks:[],
+        useralbums:[],
         interaction: {
           likes: [],
           followers: {
@@ -138,5 +172,4 @@ const registerUser = (useremail, username, password, cbResult) => {
   });
 }
 
-
-module.exports = { login, getUser, registerUser };
+module.exports = { login, getUser, registerUser, getUserByAlbum };

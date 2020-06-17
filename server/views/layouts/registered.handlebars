@@ -5,20 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
 </head>
-<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
 <body>
   <header>
-    <div class="container landing-header">
-      <nav>
-        <a href="/home">DEMusic</a>    
-        <a href="/library">Library</a>
-        <input type="text" placeholder="Search songs, artist, ...">
-        <a href="/upload">Upload</a>
-        <img src="{{user.profilePic}}">
-        <a href="/profile">{{user.username}}</a></li>
+    <div class="container home-header">
+      <nav class="home-nav">
+        <div class="header-left">
+          <a id="logo" href="/">DEMusic</a>    
+          <a href="javascript:void(0)">Library</a>
+        </div>
+        <div class="header-middle">
+          <input type="text" placeholder="Search songs, artist, ...">
+          <a href="/upload">Upload</a>
+        </div>
+        <div class="header-right">
+          <img src="/img/profile/{{user.avatarImg}}">
+          <a href="/userProfile">{{user.username}}</a></li>
+          <a href="/signOut">Sign Out</a>
+        </div>
       </nav>
     </div>
   </header>
   {{{body}}}
+  {{#if player}}
+  <div id="player" data-id="">
+  <div id="track-bar">
+    <div id="track-progress">
+    </div>
+  </div>
+
+  <button id="previous-btn" onclick="playPrevious()">PREVIOUS</button>
+  <button id="stop-btn" onclick="stop()">STOP</button>
+  <button id="play-btn" onclick="playPause()">PLAY</button>
+  <button id="next-btn" onclick="playNext()">NEXT</button>
+  <p id="track-current-time"></p>
+  {{/if}}
+</div>
+<script src="/script/player.js"></script>
 </body>
 </html>

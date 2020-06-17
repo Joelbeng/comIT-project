@@ -1,0 +1,32 @@
+<div class="container">
+  <section class="user-info">  
+    <div class="profile-pic">
+      <img src="img/profile/{{user.avatarImg}}">
+    </div>
+    <div class="user-bio">
+      <h3>{{user.username}}</h3> {{!-- user.username --}}
+      <p>{{bio.bio}}</p> {{!-- user.bio --}}
+      <a href="/setProfile">Edit Bio</a>
+      <a href="/genres">My Genres</a>
+    </div>
+  </section>
+  <section class="user-songs">
+  <ul>
+  {{#each songs}}
+    <li class="track-li">
+      <div class="track-wrapper" data-song-id="{{this.file}}"> {{!-- Cambiarlo por el id --}}
+        <div class="track-img-container">
+          <img src="{{this.img}}">
+        </div>
+        <div class="track-info">
+          <p><span>{{this.name}}</span></p>
+          <a href="#">{{this.artist}}</a>
+          <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
+          <p class="track-duration"></p>
+        </div>
+      </div>
+    </li>
+  {{/each}}
+  </ul>
+  </section>
+</div>

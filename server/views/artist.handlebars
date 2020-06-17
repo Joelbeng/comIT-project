@@ -1,0 +1,30 @@
+<div class="container">
+  <section class="user-info">  
+    <div class="profile-pic">
+      <img src="/img/profile/{{user.userdata.profile.pic}}">
+    </div>
+    <div class="user-bio">
+      <h3>{{user.userdata.username}}</h3> 
+      <p>{{user.userdata.profile.bio}}</p> 
+    </div>
+  </section>
+  <section class="user-songs">
+  <ul>
+  {{#each songs}}
+    <li>
+      <div class="track-wrapper" data-song-id="/{{this.file}}"> 
+        <div class="track-img-container">
+          <img src="/{{this.img}}">
+        </div>
+        <div class="track-info">
+          <p><span>{{this.name}}</span></p>
+          <a href="#">{{this.artist}}</a>
+          <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
+          <p class="track-duration"></p>
+        </div>
+      </div>
+    </li>
+  {{/each}}
+  </ul>
+  </section>
+</div>
