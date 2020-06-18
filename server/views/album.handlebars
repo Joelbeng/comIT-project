@@ -1,4 +1,4 @@
-<div class="container">
+<main class="album-container">  
   <section class="album-presentation">  
     <div class="album-pic">
       <img src="/{{albumCover}}">
@@ -18,7 +18,7 @@
           <img src="/{{this.img}}">
         </div>
         <div class="track-info">
-          <p><span>{{this.name}}</span></p>
+          <p>{{this.name}}</p>
           <a href="/profile/{{this.artist}}">{{this.artist}}</a>
           <a href="#">{{this.album.name}}, {{this.album.year}}</a>
           <p class="track-duration"></p>
@@ -28,4 +28,4 @@
   {{/each}}
   </ul>
   </section>
-</div>
+</main>

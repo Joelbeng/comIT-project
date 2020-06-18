@@ -4,8 +4,7 @@
   }
 </style>
 
-<div class="container">
-  <h1>Welcome {{user.username}}</h1>
+<main class="home-container">
   <ul>
   {{#each songs}}
     <li class="track-li">
@@ -14,7 +13,7 @@
           <img src="{{this.img}}">
         </div>
         <div class="track-info">
-          <p><span>{{this.name}}</span></p>
+          <p>{{this.name}}</p>
           <a href="/profile/{{this.artist}}">{{this.artist}}</a>
           <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
           <div class="track-length">
@@ -24,6 +23,56 @@
       </div>
     </li>
   {{/each}}
+  {{#if foundSongs}}
+   {{#each foundSongs}}
+    <li class="track-li">
+      <div class="track-wrapper" data-song-id="/{{this.file}}">
+        <div class="track-img-container">
+          <img src="/{{this.img}}">
+        </div>
+        <div class="track-info">
+          <p>{{this.name}}</p>
+          <a href="/profile/{{this.artist}}">{{this.artist}}</a>
+          <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
+          <div class="track-length">
+            <p class="track-duration"></p>
+          </div>
+        </div>
+      </div>
+    </li>
+  {{/each}}
+  {{/if}}
+  {{#if artists}}
+  {{#each artists}}
+    <li class="artist-li">
+      <div class="artist-wrapper">
+        <div class="artist-img-container">
+          <img src="/img/profile/{{this.userdata.profile.pic}}">
+          <p>Artista</p>
+        </div>
+        <div class="artist-info">
+          <a href="/profile/{{this.userdata.username}}">{{this.userdata.username}}</a>
+        </div>
+      </div>
+    </li>
+  {{/each}}
+  {{/if}}
+  {{#if albums}}
+  {{#each albums}}
+    <li class="album-li">
+      <div class="album-wrapper">
+        <div class="album-img-container">
+          <img src="/{{this.img}}">
+          <p>Album</p>
+        </div>
+        <div class="album-info">
+          <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
+          <a href="/profile/{{this.artist}}">{{this.artist}}</a>
+        </div>
+      </div>
+    </li>
+  {{/each}}
+  {{/if}}
   </ul>
-</div>
+</main>
 

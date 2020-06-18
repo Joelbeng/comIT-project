@@ -172,4 +172,35 @@ const registerUser = (useremail, username, password, cbResult) => {
   });
 }
 
-module.exports = { login, getUser, registerUser, getUserByAlbum };
+const getUsersByFilter = (object, cbResult) => {
+  mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
+    if (error) {
+      cbResult({ 
+        success:false,
+        msg: "This operation couldn't be done, retry later please"
+      });
+    } else {
+      const demusic = client.db("demusic");
+      const usersCollection = demusic.collection("users");
+
+      usersCollection.find(object).toArray((error, found) => {
+        if (error) {
+          cbResult({ 
+            success:false,
+            msg: "We couldn't do the task, retry later please"
+          });
+        } else {
+          cbResult({ 
+            success: true, 
+            found, 
+          });
+        }
+
+        client.close();
+      });
+    }
+  });
+}
+
+
+module.exports = { login, getUser, registerUser, getUserByAlbum, getUsersByFilter };

@@ -13,35 +13,56 @@
       <nav class="home-nav">
         <div class="header-left">
           <a id="logo" href="/">DEMusic</a>    
-          <a href="javascript:void(0)">Library</a>
         </div>
         <div class="header-middle">
-          <input type="text" placeholder="Search songs, artist, ...">
+          <a href="javascript:void(0)">Library</a>
+          <input type="text" id="search-bar" placeholder="Search songs, artist, ...">
           <a href="/upload">Upload</a>
         </div>
         <div class="header-right">
-          <img src="/img/profile/{{user.avatarImg}}">
-          <a href="/userProfile">{{user.username}}</a></li>
+          <a class="header-profile" href="/userProfile">
+            <img src="/img/profile/{{user.avatarImg}}">
+            {{user.username}}
+          </a>
           <a href="/signOut">Sign Out</a>
         </div>
       </nav>
     </div>
   </header>
+  <div class="container">
   {{{body}}}
+  </div>
   {{#if player}}
   <div id="player" data-id="">
-  <div id="track-bar">
-    <div id="track-progress">
+    <div class="sliders">
+      <div id="track-bar">
+        <div id="track-progress">
+        </div>
+      </div>
+      <div class="volume-slider">
+        <input type="range" id="volume-input" min="0" max="1" step="0.01">
+      </div>
+    </div>
+    <div class="buttons">
+      <button id="previous-btn" onclick="playPrevious()">PREVIOUS</button>
+      <button id="stop-btn" onclick="stop()">STOP</button>
+      <button id="play-btn" onclick="playPause()">PLAY</button>
+      <button id="next-btn" onclick="playNext()">NEXT</button>
+      <p id="track-current-time"></p>
     </div>
   </div>
-
-  <button id="previous-btn" onclick="playPrevious()">PREVIOUS</button>
-  <button id="stop-btn" onclick="stop()">STOP</button>
-  <button id="play-btn" onclick="playPause()">PLAY</button>
-  <button id="next-btn" onclick="playNext()">NEXT</button>
-  <p id="track-current-time"></p>
   {{/if}}
-</div>
+
 <script src="/script/player.js"></script>
+<script>
+  const searchBar = document.getElementById("search-bar");
+  let query;
+
+  searchBar.addEventListener("change", function() {
+    // función que busca canciones, artistas y albums con ese nombre
+    console.log("cambie");
+    window.location.href = "/search/"+this.value
+  });
+</script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 document.getElementById("new-song").onchange = showNameInput;
 
 function showNameInput() {
+  console.log("ejecuto")
   const fileInput = document.getElementById("new-song");
   const files = fileInput.files;
   const div = document.getElementsByClassName("new-song-input")[0];
@@ -52,5 +53,6 @@ function showNameInput() {
     div.appendChild(label);
     div.appendChild(songNameInput);
   }
-    document.getElementsByTagName("form")[0].appendChild(div)
+    document.getElementsByTagName("form")[0].appendChild(div);
+    console.log("hago append")
 }

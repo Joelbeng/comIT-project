@@ -15,6 +15,7 @@ li{
 .container {
   max-width: 90%;
   margin:0 auto;
+  padding-bottom:3em;
 }
 
 .disabled {
@@ -107,15 +108,15 @@ a {
   cursor: pointer;
 }
 
-label{
+.landing-header label{
   margin-bottom:15px;
 }
 
-input {
+.landing-header input {
   margin-bottom: 25px;
 }
 
-input[type="submit"] {
+.landing-header input[type="submit"] {
   margin-top: 40px;
   margin-bottom: 0;
   position: relative;
@@ -128,55 +129,73 @@ input[type="submit"] {
 }
 
 .home-nav{
-  width: 100%;
+  width: 90%;
+  margin:0 auto;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
 }
 .header-left{
   display: flex;
-  width: 30%;
-  align-items: center;
+  margin-right: 80px;
 }
 
 .header-left a {
-  margin-left: 30%;
+  
+}
+
+.header-profile {
+  display: flex;
+  align-items: center;
+}
+
+.header-profile img {
+
 }
 
 #logo {
-  margin-right:3%;
+  
 } 
 
 .header-middle{
   display: flex;
-  width: 35%;
-  margin-right: 4%;
   align-items: center;
 }
 
 .header-middle input{
-  height: 30%;
-  width: 70%;
+width: 300px;
+padding:4px 10px;
+margin:0 70px;
 }
 
 .header-middle a {
-  margin-left: 10%;
+  
 }
 
-.header-right{
+.header-right {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  width: 30%;
 }
 
 .header-right img {
   max-width: 50px;
-  display: block;
-  border-radius: 26px;
-  margin-left: 10px;
+  border-radius: 50%;
 }
 
+.header-right a{
+  margin-left: 30px;
+}
+
+.header-profile {
+  display: flex;
+  align-items: center;
+}
+
+.header-profile img{
+  margin-right: 10px;
+}
 
 /* PLAYER */
 
@@ -185,24 +204,36 @@ input[type="submit"] {
   bottom:0;
   width: 100%;
   text-align:center;
-  padding:1.5em;
+  padding:0.5em;
   background: #233f40;  
+}
+
+.sliders {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1em;
 }
 
 #track-bar {
   width: 700px;
+  height: 8px;
   display: block;
-  margin: 0 auto;
-  margin-bottom: 15px;
+  margin-left: 24%;
   background-color: rgb(175, 175, 175);
   border-radius: 10px;
 }
 
 #track-progress {
-  height: 10px;
+  height: 8px;
   width:0%;
   background-color: crimson;
   border-radius: 10px;
+}
+
+.volume-slider {
+  margin-left: 75px;
+  height: 8px;
+  display: flex;
 }
 
 .track-info {
@@ -231,6 +262,10 @@ input[type="submit"] {
 
 .track-wrapper img {
   max-width: 80px;
+}
+
+#track-current-time {
+  color:#fff;
 }
 
 /*genres view*/

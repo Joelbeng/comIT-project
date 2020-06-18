@@ -1,4 +1,4 @@
-<div class="container">
+<main class="my-profile-container">  
   <section class="user-info">  
     <div class="profile-pic">
       <img src="img/profile/{{user.avatarImg}}">
@@ -19,7 +19,7 @@
           <img src="{{this.img}}">
         </div>
         <div class="track-info">
-          <p><span>{{this.name}}</span></p>
+          <p>{{this.name}}</p>
           <a href="#">{{this.artist}}</a>
           <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
           <p class="track-duration"></p>
@@ -29,4 +29,4 @@
   {{/each}}
   </ul>
   </section>
-</div>
+</main>

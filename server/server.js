@@ -76,34 +76,26 @@ app.use(expSession({
 app.get("/", (req, res) => {
 
   //Si el usuario se estaba registrando y cierra el navegador, lo vuelvo a mandar a la misma instancia
-  if (req.session.genresView && req.session.user == undefined) {    
-    res.redirect("/genres");
-    return;
-  }
   
   if (req.session.logged) {
     res.redirect("/home");
     return
   } 
 
-  // elimino los mensajes de error (login y register) al volver al home
+  // elimino los mensajes de error (login y register) al volver a este endpoint
   if (req.session.logmessage || req.session.regmessage) {
     delete req.session.logmessage;
     delete req.session.regmessage;
   }
 
-  res.render("landing",{layout:"login"});
+  res.render("landing", { layout:"login" });
 });
 
 app.get("/home", (req, res) => {
-  req.session.user = true; // parche para quedar enganchado en la vista genre
 
-  if (req.session.logged && req.session.genresView && !req.session.user) {
-    res.redirect("/genres");
-    return
-  }
 
   if (req.session.logged) { 
+    req.session.user = true; // parche para no quedar enganchado en la vista genre
     const userGenres = req.session.logged.userGenres;
 
     music.getSongsByGenre(userGenres, result => {
@@ -116,12 +108,12 @@ app.get("/home", (req, res) => {
           player:true
         }); 
       } else {
-        res.render("home");
+        res.redirect("/error");
       }
     });
 
   } else { //lo mando al home con otro layout
-    res.redirect("/home",{ layout:"unregistered", player:true });
+    res.render("home",{ layout:"unregistered", player:true });
   }
 });
 
@@ -173,7 +165,7 @@ app.get("/upload", (req, res) => {
 })
 
 app.get("/explore", (req, res) => {
-  res.render("home");
+  res.redirect("/home");
 });
 
 app.get("/error", (req, res) => {
@@ -280,10 +272,10 @@ app.get("/signOut", (req, res) => {
   req.session.destroy();
 });
 
-//Post que recibe la canción subida por el usuario
-app.post("/upload", upload.fields([{name:"newsong"},{name:"songimg"}]), (req, res) => {
+//Post que recibe la imagen y las canciones subidas por el usuario
+app.post("/upload", upload.fields([{name:"newsong"}, {name:"songimg"}]), (req, res) => {
 
-  //Chequeo si subió alguna img el usuario para la canción o album  
+  //Chequeo si subió alguna img el usuario para la canción o album. Si no lo hizo le agrego img default  
   if (req.files.songimg) {
     songimg = req.files.songimg[0].filename;
    } else {
@@ -304,7 +296,7 @@ app.post("/upload", upload.fields([{name:"newsong"},{name:"songimg"}]), (req, re
     music.insertAlbum(req.session.logged.username, req.body.songname, songsFileNames, req.body.songGenre,req.body.albumname, req.body.albumyear, songimg, result => {
       if (result) {
         // si recibo true en el callback, inserto el la colección users, el filename de cada canción para tener referencia
-        music.insertSongsInUserCol(req.session.logged.username, songsFileNames,req.body.albumname, result => {
+        music.insertSongsInUserCol(req.session.logged.username, songsFileNames, result => {
           if (result) {
             music.insertAlbuminUserCol(req.session.logged.username, req.body.albumname, result => {
               if (result) {
@@ -333,6 +325,7 @@ app.post("/upload", upload.fields([{name:"newsong"},{name:"songimg"}]), (req, re
         music.insertSongsInUserCol(req.session.logged.username, songsFileNames, result => {
           if (result) {
             console.log("Your song has been uploaded")
+            res.redirect("/userProfile")
             //setTime interval que le diga que se subieron las canciones, y mandarlo a su perfil
           } else{
             //llevarlo a error, setTime out que no se pudo y al home
@@ -363,6 +356,8 @@ app.get("/userProfile", (req, res) => {
           bio:result.user.userdata.profile,
           player:true
         }); 
+      } else {
+        res.redirect("/error");
       }
     });
   })
@@ -377,28 +372,54 @@ app.get("/setProfile", (req, res) => {
     });
 });
 
-app.post("/setProfile",upload.single("profilePic"), (req, res) => {
-  
+// POST que recibe la descripción de la bio y la foto de perfil del usuario.
+app.post("/setProfile", upload.single("profilePic"), (req, res) => {
+
+  // Si el usuario sólo sube su bio y no la foto, se actualiza únicamente ese campo en la db, y se retorna.
+  if (req.body.bio && !req.file) {
+    profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.bio":req.body.bio }, result => {
+      if (result) {
+        res.redirect("/home");
+    } else {
+      res.redirect("/error");
+    }
+  });
+  return
+  }
+
+  // Si el usuario sólo sube su foto y no la bio, se actualiza únicamente ese campo en la db y se retorna
+  if (req.file.filename && !req.body.bio) {
+  profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.pic":req.file.filename }, result => {
+    if (result) {
+      res.redirect("/home");
+  } else {
+    res.redirect("/error");
+  }
+    return
+  });  
+}
+    
+  // Si el usuario sube ambos datos, se actualizan ambos campos en la db
   profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.bio":req.body.bio }, result => {
     if (result) {
       profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.pic":req.file.filename }, result => {
         if (result) {
-          //piso el avatarImg que tenía como default
+          //se pisa el avatarImg que tenía como default
           req.session.logged.avatarImg = req.file.filename;
           res.redirect("/home");
         } else {
-          ////lo mando al home pero le digo que hubo un error
+          res.redirect("/error")   
         }
       });
     } else {
-      //lo mando al home pero le digo que hubo un error
+      res.redirect("/error");
     }
   });
-
 }); 
 
 app.get("/profile/:artist", (req, res) => {
-                            
+  
+  // Si hago click sobre mi nombre de artista en la canción, me lleva a mi perfil
   if (req.params.artist === req.session.logged.username) {
     res.redirect("/userProfile");
     return;
@@ -413,8 +434,8 @@ app.get("/profile/:artist", (req, res) => {
               layout:"registered", 
               songs, 
               player:true, 
-              user,
-              username:req.session.logged
+              artist:user.user.userdata,
+              user:req.session.logged
             }
           );
         } else {
@@ -428,14 +449,16 @@ app.get("/profile/:artist", (req, res) => {
   
 });
 
+// GET que muestra el album clickeado
 app.get("/album/:album", (req,res) => {
-console.log(req.params.album);
+
+  // Busco al artista por el nombre de album, para mostrar su nombre en la vista
   auth.getUserByAlbum(req.session.logged.username, req.params.album, user => {
     
-    if (user) {
+    if (user) {      
+      // Busco las canciones pertencientes al album elegido
       music.getSongsByAlbum(req.params.album, songs => {
         if (songs) {
-          console.log(user);
           res.render("album",
             { 
               layout:"registered", 
@@ -458,7 +481,73 @@ console.log(req.params.album);
   });
 });
 
+// GET que realiza con la consulta en la db según lo ingresado en la barra de búsqueda
+app.get("/search/:all", (req, res) => {
 
+  const param = new RegExp(`^${req.params.all}`,"i");
+  let songs = [];
+  let albums =[];
+
+  music.getSongsByFilter({$or:[{"name":{$regex:param}},{"album.name":{$regex:param}}]}, tracks => {
+    if (tracks) {
+
+      tracks.forEach(track => {
+        if (track.name.toUpperCase().indexOf(req.params.all.toUpperCase()) == 0) {
+          songs = track;
+  
+        } else if (track.album.name.toUpperCase().indexOf(req.params.all.toUpperCase()) == 0) {
+            
+            if (albums.every(album => album !== track.album.name)) {
+              albums.push(track);
+            }
+  
+        } else {
+          //mando array vacío
+          console.log("no se encontraron resultados");
+        }    
+      });
+    }
+  });
+
+  auth.getUsersByFilter({"userdata.username":{$regex:param}}, users => {
+    let data = {foundSongs:songs};
+
+    if (users.success) {
+      artists = users.found;
+
+      if(songs ==[]){
+        data=false;
+      }
+    
+      res.render("home", 
+      {
+        layout:"registered",  
+        user: req.session.logged, 
+        artists,
+        albums,
+        foundSongs:data,
+        player:true
+      });
+      
+    } 
+     
+  });
+
+
+
+
+      // console.log(artists)
+      // console.log(albums)
+      // console.log(songs)
+  
+      
+
+    // } else {
+    //   res.redirect("/error");
+    // }
+  //   }
+  // });
+}); 
 
 app.listen(HTTP_PORT, () => {
   console.log(`Server iniciado en http://localhost:${HTTP_PORT}`);

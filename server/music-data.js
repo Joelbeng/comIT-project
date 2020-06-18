@@ -110,7 +110,6 @@ const getSongsByAlbum = (albumName, cbResult) => {
 //Función que busca en la colección music a partir de un filtro, especificándole el campo.
 //params: campo, filtro, callback
 const getSongsByFilter = (object, cbResult) => {
-  
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
     
     if (error) {
@@ -120,7 +119,7 @@ const getSongsByFilter = (object, cbResult) => {
       const musicCollection = demusic.collection("music");
 
       musicCollection.find(object).toArray((error,songs)=>{
-
+        console.log(songs)
         if (error) {
           cbResult({});
         } else {
@@ -201,6 +200,7 @@ const insertSingle = (username, songName, songFileName, genre, songImg, cbResult
         if (error) {
           cbResult(error);
         } else {
+          console.log(result)
           cbResult(true);
         }
 
@@ -212,15 +212,15 @@ const insertSingle = (username, songName, songFileName, genre, songImg, cbResult
 }
 
 //función que actualiza los tracks que hay en el campo usertrack, dentro de la colección users en la db
-const insertSongsInUserCol = (username, songFileNames, albumName, cbResult) => {
+const insertSongsInUserCol = (username, songFileNames, cbResult) => {
   
-  auth.getUser(username, result =>{
+  auth.getUser(username, result => {
     if (result.user) { 
       
       //almaceno los tracks del usuario encontrado
       const userCurrentSongs = result.user.usertracks;
 
-      //agrego al array de los tracks actuales, los nuevos tracks subidos
+      // se unifica en un mismo array las canciones anteriores y nuevas del usuario.
       for (let i = 0; i = songFileNames.length; i++) {
         userCurrentSongs.push(songFileNames.shift());
       }
@@ -233,7 +233,7 @@ const insertSongsInUserCol = (username, songFileNames, albumName, cbResult) => {
           const demusic = client.db("demusic");
           const usersCollection = demusic.collection("users");
     
-          usersCollection.update({ "userdata.username":username }, {$set: { usertracks: userCurrentSongs }}, (error, result)=> {
+          usersCollection.updateOne({ "userdata.username":username }, {$set: { usertracks: userCurrentSongs }}, (error, result)=> {
             
             if (error) {
               cbResult(false);
@@ -266,7 +266,7 @@ const insertAlbuminUserCol = (username, albumName, cbResult) => {
         const demusic = client.db("demusic");
         const usersCollection = demusic.collection("users");
 
-        usersCollection.update({ "userdata.username":username }, {$set: { useralbums:userCurrentAlbums }}, (error, result)=> {
+        usersCollection.updateOne({ "userdata.username":username }, {$set: { useralbums:userCurrentAlbums }}, (error, result)=> {
           
           if (error) {
             cbResult(false);

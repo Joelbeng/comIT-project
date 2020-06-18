@@ -1,27 +1,25 @@
-<div class="container">
-  <div class="upload-container">
-    <form method="POST" action="/upload" enctype="multipart/form-data">
-      <div class="file-select">  
-        <label for="new-song">Choose your song</label>
-        <input type="file" name="newsong" id="new-song" accept="audio/mp3" multiple>
-      </div>  
-      <div class="new-song-img">
-        <label for="new-song-img">Choose image</label>
-        <input type="file" name="songimg" id="new-song-img" accept="image/*">
-      </div>
-      <div class="new-song-info">
-      <div class="new-song-input"></div>
-      <label for="new-song-genre">Genre:</label>
-        <select id="new-song-genre" name="songGenre" multiple required>
-          {{#each genres as |genre|}}
-          <option value="{{genre}}">{{genre}}</option>
-          {{/each}}
-        </select>  
-      </div>
-      <a href="/upload">Cancel</a>
-      <input type="submit" value="Ready"> 
-    </form>
-  </div>
-</div>
+<main class="upload-container"> 
+  <form method="POST" action="/upload" enctype="multipart/form-data">
+    <div class="file-select">  
+      <label for="new-song">Choose your song</label>
+      <input type="file" name="newsong" id="new-song" accept="audio/mp3" multiple>
+    </div>  
+    <div class="new-song-img">
+      <label for="new-song-img">Choose image</label>
+      <input type="file" name="songimg" id="new-song-img" accept="image/*">
+    </div>
+    <div class="new-song-info">
+    <div class="new-song-input"></div>
+    <label for="new-song-genre">Genre:</label>
+      <select id="new-song-genre" name="songGenre" multiple required>
+        {{#each genres as |genre|}}
+        <option value="{{genre}}">{{genre}}</option>
+        {{/each}}
+      </select>  
+    </div>
+    <a href="/upload">Cancel</a>
+    <input type="submit" value="Ready"> 
+  </form>
+</main>
 
 <script src="script/upload.js"></script>
