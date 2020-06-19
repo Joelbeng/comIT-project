@@ -96,9 +96,21 @@ a {
   margin: 0 auto;
   text-align: center;
   position: relative;
-  background-color: burlywood;
+  background-color: #233f40;
+  color:#fff;
   top: 5vh;
   padding: 50px;
+}
+
+.form input {
+  margin-bottom:2em;
+}
+
+.form input[type="submit"] {
+  margin-bottom:0;
+  margin-top:2em;
+  padding:5px 0;
+  cursor:pointer;
 }
 
 .close-btn {
@@ -253,11 +265,7 @@ margin:0 70px;
   background-color: #d4d4d4;
   display:flex;
   width: 80%;
-  margin: 0 auto;
-}
-
-.track-li {
-  margin: 50px 0px;
+  margin: 50px auto;
 }
 
 .track-wrapper img {
