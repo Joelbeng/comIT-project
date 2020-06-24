@@ -3,7 +3,7 @@ const auth = require("./auth");
 
 //Función que añade los géneros elegidos por el usuario a la base de datos.
 //El tercer parametro es para chequear si se está registrando, o si ya es usuario loggeado
-const addUserGenres = (username, userGenres, userStage, cbResult) => {
+const addUserGenres = (username, userGenres, cbResult) => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error,client) => {
   
     if (error) {
@@ -16,13 +16,6 @@ const addUserGenres = (username, userGenres, userStage, cbResult) => {
         
         if (error){
           cbResult(false);
-        } else if (userStage){
-          cbResult(
-            {
-            success:true,
-            user:"logged"
-            }
-            );
         } else {
           cbResult(
             {
@@ -118,8 +111,7 @@ const getSongsByFilter = (object, cbResult) => {
       const demusic = client.db("demusic");
       const musicCollection = demusic.collection("music");
 
-      musicCollection.find(object).toArray((error,songs)=>{
-        console.log(songs)
+      musicCollection.find(object).toArray((error,songs)=> {
         if (error) {
           cbResult({});
         } else {

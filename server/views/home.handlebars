@@ -5,6 +5,9 @@
 </style>
 
 <main class="home-container">
+  {{#if searchTitle}}
+  <h3>{{searchTitle}}</h3>
+  {{/if}}
   <ul>
   {{#each songs}}
     <li class="track-li">
@@ -25,7 +28,7 @@
   {{/each}}
   {{#if foundSongs}}
    {{#each foundSongs}}
-    <li class="track-li">
+    <li class="trackFound-li">
       <div class="track-wrapper" data-song-id="/{{this.file}}">
         <div class="track-img-container">
           <img src="/{{this.img}}">
@@ -42,8 +45,8 @@
     </li>
   {{/each}}
   {{/if}}
-  {{#if artists}}
-  {{#each artists}}
+  {{#if foundArtists}}
+  {{#each foundArtists}}
     <li class="artist-li">
       <div class="track-wrapper">
         <div class="artist-img-container">
@@ -57,8 +60,8 @@
     </li>
   {{/each}}
   {{/if}}
-  {{#if albums}}
-  {{#each albums}}
+  {{#if foundAlbums}}
+  {{#each foundAlbums}}
     <li class="album-li">
       <div class="track-wrapper">
         <div class="album-img-container">

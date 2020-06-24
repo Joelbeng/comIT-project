@@ -222,15 +222,13 @@ margin:0 70px;
 
 .sliders {
   display: flex;
-  align-items: flex-start;
+  justify-content: center;
   margin-bottom: 1em;
 }
 
 #track-bar {
   width: 700px;
   height: 8px;
-  display: block;
-  margin-left: 24%;
   background-color: rgb(175, 175, 175);
   border-radius: 10px;
 }
@@ -243,7 +241,8 @@ margin:0 70px;
 }
 
 .volume-slider {
-  margin-left: 75px;
+  margin-left: 515px;
+  position: absolute;
   height: 8px;
   display: flex;
 }

@@ -95,12 +95,11 @@ const stop = () => {
   if(!songLoaded) return;
 
   songLoaded.currentTime = 0;
-  songLoaded.pause();
-  
+
   // Ejecuto updateTime() una vez más para que el valor de la barra de progreso vaya a 0
   updateTime(); 
   window.clearInterval(interval);
-  //playBtn.textContent = "PLAY";
+  playPause();
 }
 
 const playNext = () => {
@@ -207,10 +206,10 @@ const changeVolume = () => {
 
   const volumeInput = document.getElementById("volume-input");
 
-  // Seteo el volumen de la canción antes del evento, por si el usuario modifico el volumen anter de dar PLAY
+  // Seteo el volumen de la canción antes del evento, por si el usuario modificó el volumen anter de dar PLAY
   songLoaded.volume = volumeInput.value;
 
-  // Cuando el usuario deslize sobre la barra volumen, esta a se va a modificar 
+  // Cuando el usuario deslice sobre la barra volumen, esta a se va a modificar 
   volumeInput.addEventListener("input", function() {
     songLoaded.volume = this.value;
   });

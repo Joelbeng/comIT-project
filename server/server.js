@@ -95,7 +95,6 @@ app.get("/home", (req, res) => {
 
 
   if (req.session.logged) { 
-    req.session.user = true; // parche para no quedar enganchado en la vista genre
     const userGenres = req.session.logged.userGenres;
 
     music.getSongsByGenre(userGenres, result => {
@@ -192,9 +191,9 @@ app.post("/login", (req, res) => {
 //Post AJAX. Inserta en la base de datos los géneros elegidos por el usuario -- Usar este mismo endpoint para cambiar los géneros más adelante
 app.post("/genres", (req, res) => {
   req.session.logged.userGenres = req.body;
-  
+  console.log(req.session);
   //recibo como parametro del callback (result) un boolean
-  music.addUserGenres( req.session.logged.username, req.session.logged.userGenres , req.session.user, result => {
+  music.addUserGenres( req.session.logged.username, req.session.logged.userGenres, result => {
     // Elimino esta propiedad si se pudo guardar en la db los géneros del user
     if (result.sucess) delete req.session.genresView; 
      
@@ -481,72 +480,64 @@ app.get("/album/:album", (req,res) => {
   });
 });
 
-// GET que realiza con la consulta en la db según lo ingresado en la barra de búsqueda
+// GET que realiza la consulta en la db según lo ingresado en la barra de búsqueda
 app.get("/search/:all", (req, res) => {
 
+  // se crea una regex que sea case insensitive y que busque el match al principio del string
   const param = new RegExp(`^${req.params.all}`,"i");
-  let songs = [];
-  let albums =[];
 
+  let foundSongs = [];
+  let foundAlbums = [];
+
+  //se buscan las canciones y los albums coincidentes con la regex
   music.getSongsByFilter({$or:[{"name":{$regex:param}},{"album.name":{$regex:param}}]}, tracks => {
     if (tracks) {
 
+      //se iteran las canciones encontradas, para discriminar si la regex coincide con el nombre de la canción o con el album. 
       tracks.forEach(track => {
         if (track.name.toUpperCase().indexOf(req.params.all.toUpperCase()) == 0) {
-          songs = track;
+          foundSongs.push(track);
   
         } else if (track.album.name.toUpperCase().indexOf(req.params.all.toUpperCase()) == 0) {
             
-            if (albums.every(album => album !== track.album.name)) {
-              albums.push(track);
+            if (foundAlbums.every(foundAlbum => foundAlbum.album.name !== track.album.name)) {
+              foundAlbums.push(track);
             }
   
         } else {
-          //mando array vacío
           console.log("no se encontraron resultados");
         }    
       });
+
+      auth.getUsersByFilter({"userdata.username":{$regex:param}}, users => {
+
+        if (users.success) {
+          const foundArtists = users.found;
+ 
+          let searchResultMsg;
+
+          if (foundSongs.length == 0 && foundAlbums.length == 0 && foundArtists.length == 0) {
+            searchResultMsg = `There are no results for  "${req.params.all}"`;
+          } else {
+            searchResultMsg = `Results for "${req.params.all}"`;
+          }
+
+          res.render("home", 
+          {
+            layout:"registered",  
+            user: req.session.logged, 
+            foundSongs,
+            foundArtists,
+            foundAlbums,
+            searchTitle:searchResultMsg,
+            player:true
+          });
+          
+        } 
+         
+      });  
     }
   });
-
-  auth.getUsersByFilter({"userdata.username":{$regex:param}}, users => {
-    let data = {foundSongs:songs};
-
-    if (users.success) {
-      artists = users.found;
-
-      if(songs ==[]){
-        data=false;
-      }
-    
-      res.render("home", 
-      {
-        layout:"registered",  
-        user: req.session.logged, 
-        artists,
-        albums,
-        foundSongs:data,
-        player:true
-      });
-      
-    } 
-     
-  });
-
-
-
-
-      // console.log(artists)
-      // console.log(albums)
-      // console.log(songs)
-  
-      
-
-    // } else {
-    //   res.redirect("/error");
-    // }
-  //   }
-  // });
 }); 
 
 app.listen(HTTP_PORT, () => {
