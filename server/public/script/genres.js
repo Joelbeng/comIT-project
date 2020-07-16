@@ -16,7 +16,7 @@ document.getElementById("ready-btn").addEventListener("click", () => {
     userGenres.push(genre.getAttribute("data-genre"));
   });
 
-  //chequeo que haya elegido al menos un género
+  // se chequea que haya elegido al menos un género
   if (userGenres.length > 0) {
     sendUserGenres(userGenres);
     //cambiar el estilo del color del botón "Ready"        
@@ -25,18 +25,22 @@ document.getElementById("ready-btn").addEventListener("click", () => {
   }
 });
 
-//Realiza post Ajax a "/genres" enviando el array que contiene los géneros elegidos por el user
-function sendUserGenres(Arr) {
+/**
+ * Función que realiza POST AJAX a "/genres" enviando los géneros elegidos por el usuario, y cambia de página
+ * 
+ * @param {object} Arr || Array que contiene los géneros elegidos (string)
+ */
+const sendUserGenres= Arr => {
   const genresBody = JSON.stringify(Arr);
   const xhr = new XMLHttpRequest();
 
-  xhr.onload = function () {
+  xhr.onload = function() {
     const result = JSON.parse(this.responseText);
 
   // El post a genres responde con un objeto que me dice si el user está en la etapa de registro, o si ya es usuario loggeado 
-    if (result.success && result.user == "registered") {
+    if (result.result && !result.userOldGenres) {
       window.location.href = "/setProfile";
-    } else if (result.success) {
+    } else if (result) {
       window.location.href ="/home";
     } else {
       window.location.href ="/error";

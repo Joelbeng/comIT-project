@@ -1,48 +1,58 @@
-document.getElementById("new-song").onchange = showNameInput;
+document.getElementById("new-song").onchange = showInputs;
 
-function showNameInput() {
+// función que crea y muestra los campos a completar por el user.
+function showInputs() {
   console.log("ejecuto")
   const fileInput = document.getElementById("new-song");
   const files = fileInput.files;
-  const div = document.getElementsByClassName("new-song-input")[0];
+  const div = document.getElementsByClassName("new-song-details")[0];
   div.innerHTML="";
 
-  //si sube más de una canción le creo los campos correspondientes a los datos del album
+  // si el user sube más de una canción se crean los campos correspondientes a los datos del album
   if (files.length > 1) {
+    const albumNameDiv = document.createElement("div");
+    albumNameDiv.setAttribute("class", "upload-form-group");
 
     const nameLabel= document.createElement("label");
     nameLabel.setAttribute("for","album-name");
-    nameLabel.textContent = "Name of the album:"; 
+    nameLabel.textContent = "Album name:"; 
 
     const albumNameInput = document.createElement("input");
     albumNameInput.setAttribute("type","text");
-    albumNameInput.setAttribute("name","albumname");
+    albumNameInput.setAttribute("name","albumName");
     albumNameInput.setAttribute("id","album-name");
     albumNameInput.setAttribute("required","true");
     
 
-    const yearLabel= document.createElement("yearLabel");
+    const albumYearDiv = document.createElement("div");
+    albumYearDiv.setAttribute("class", "upload-form-group");
+    const yearLabel= document.createElement("label");
     yearLabel.setAttribute("for","album-year");
-    yearLabel.textContent = "Year of the album:"; 
+    yearLabel.textContent = "Album year:"; 
 
     const albumYearInput = document.createElement("input");
     albumYearInput.setAttribute("type","number");
-    albumYearInput.setAttribute("name","albumyear");
+    albumYearInput.setAttribute("name","albumYear");
     albumYearInput.setAttribute("id","album-year");
     albumYearInput.setAttribute("required","true");
 
 
-    div.appendChild(nameLabel);
-    div.appendChild(albumNameInput);
-    div.appendChild(yearLabel);
-    div.appendChild(albumYearInput);
+    albumNameDiv.appendChild(nameLabel);
+    albumNameDiv.appendChild(albumNameInput);
+    div.appendChild(albumNameDiv)
+
+    albumYearDiv.appendChild(yearLabel);
+    albumYearDiv.appendChild(albumYearInput);
+    div.appendChild(albumYearDiv)
   }
   
-  //creo campos para que el user nombre sus canciones
+  // se crean los campos para que el user nombre sus canciones
   for (let i = 0; i < files.length; i++) {
+    const inputDiv = document.createElement("div");
+    inputDiv.setAttribute("class", "upload-form-group");
     const label= document.createElement("label");
     label.setAttribute("for","song-name");
-    label.textContent = `${i+1}. name:`; 
+    label.textContent = `${i+1}. song title`;
 
     const songNameInput = document.createElement("input");
     songNameInput.setAttribute("type","text");
@@ -50,9 +60,13 @@ function showNameInput() {
     songNameInput.setAttribute("id","song-name");
     songNameInput.setAttribute("required","true");
 
-    div.appendChild(label);
-    div.appendChild(songNameInput);
+    // Los inputs tienen como valor por defecto el mismo nombre del archivo sin la extensión
+    songNameInput.value = files[i].name.replace(".mp3","");
+
+    inputDiv.appendChild(label);
+    inputDiv.appendChild(songNameInput);
+
+    div.appendChild(inputDiv);
   }
-    document.getElementsByTagName("form")[0].appendChild(div);
-    console.log("hago append")
+
 }

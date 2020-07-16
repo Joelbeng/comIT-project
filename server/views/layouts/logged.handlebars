@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" >
+<link rel="stylesheet" href="/css/style.css">
+<body>
+  <header>
+    <div class="container home-header">
+      <nav class="home-nav">
+        {{#if user}}
+        <div class="header-left">
+          <a id="logo" href="/home">DEMusic</a>    
+          <a href="/home">Home</a>    
+        </div>  
+        <div class="header-middle">
+          <a href="javascript:void(0)">Library</a>
+          <input type="text" id="search-bar" placeholder="Search songs, artist, ...">
+          <a href="/upload">Upload</a>
+        </div>
+        <div class="header-right">
+          <a class="header-profile" href="/userProfile">
+            <img src="/img/profile/{{user.avatarImg}}">
+            {{user.username}}
+          </a>
+          <a href="/signOut">Sign Out</a>
+        </div>
+        {{else}}
+        <div class="header-left">
+          <a id="logo" href="/">DEMusic</a>    
+          <a href="/home">Home</a>    
+        </div>  
+        <div class="header-middle">
+          <a href="javascript:void(0)">Library</a>
+          <input type="text" id="search-bar" placeholder="Search songs, artist, ...">
+          <a href="/register">Upload</a>
+        </div>
+        <div class="header-right">
+          <a href="/login">Log In</a>
+          <a href="/register">Register</a>
+        </div>
+        {{/if}}
+      </nav>
+    </div>
+  </header>
+  <div class="container">
+  {{{body}}}
+  </div>
+  {{#if player}}
+  <div id="player" data-id="">
+    <div class="sliders">
+      <div id="track-bar">
+        <div id="track-progress">
+          <div>
+            <p id="track-actual-time"></p>
+            <p id="track-full-time"></p>
+          </div>
+        </div>
+      </div>
+      <div class="volume-slider">
+        <input type="range" id="volume-input" min="0" max="1" step="0.01">
+      </div>
+    </div>
+    <div class="buttons">
+      <button id="previous-btn" onclick="playPrevious()">PREVIOUS</button>
+      <button id="stop-btn" onclick="stop()">STOP</button>
+      <button id="play-btn" onclick="playPause()">PLAY</button>
+      <button id="next-btn" onclick="playNext()">NEXT</button>
+    </div>
+  </div>
+<script src="/script/player.js"></script>
+{{/if}}
+<script>
+  const searchBar = document.getElementById("search-bar");
+
+  searchBar.addEventListener("change", function() {
+    window.location.href = "/search/"+this.value
+  });
+</script>
+</body>
+</html>

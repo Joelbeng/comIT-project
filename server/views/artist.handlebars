@@ -11,13 +11,13 @@
   <ul>
   {{#each songs}}
     <li>
-      <div class="track-wrapper" data-song-id="/{{this.file}}"> 
+      <div class="track-wrapper" data-song-id="{{this.file}}"> 
         <div class="track-img-container">
           <img src="/{{this.img}}">
         </div>
         <div class="track-info">
           <p>{{this.name}}</p>
-          <a href="#">{{this.artist}}</a>
+          <a href="#" class="link">{{this.artist}}</a>
           <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
           <p class="track-duration"></p>
         </div>

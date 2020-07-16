@@ -2,23 +2,25 @@
   <form method="POST" action="/upload" enctype="multipart/form-data">
     <div class="file-select">  
       <label for="new-song">Choose your song</label>
-      <input type="file" name="newsong" id="new-song" accept="audio/mp3" multiple>
+      <input type="file" name="newSong" id="new-song" accept="audio/mp3" multiple required>
     </div>  
     <div class="new-song-img">
       <label for="new-song-img">Choose image</label>
-      <input type="file" name="songimg" id="new-song-img" accept="image/*">
+      <input type="file" name="songImg" id="new-song-img" accept="image/*">
     </div>
     <div class="new-song-info">
-    <div class="new-song-input"></div>
-    <label for="new-song-genre">Genre:</label>
+      <label for="new-song-genre">Genre:</label>
       <select id="new-song-genre" name="songGenre" multiple required>
         {{#each genres as |genre|}}
         <option value="{{genre}}">{{genre}}</option>
         {{/each}}
-      </select>  
+      </select>
+      <div class="new-song-details"></div>  
     </div>
-    <a href="/upload">Cancel</a>
-    <input type="submit" value="Ready"> 
+    <div class="submit-buttons">
+      <a href="/upload">Cancel</a>
+      <input type="submit" value="Ready">
+    </div> 
   </form>
 </main>
 

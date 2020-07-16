@@ -8,7 +8,7 @@ body {
   font-family: 'Noto Sans', sans-serif;
 }
 
-li{
+li {
   list-style: none;
 }
 
@@ -142,6 +142,7 @@ a {
 
 .home-nav{
   width: 90%;
+  height: 60px;
   margin:0 auto;
   display: flex;
   align-items: center;
@@ -150,11 +151,10 @@ a {
 }
 .header-left{
   display: flex;
-  margin-right: 80px;
 }
 
-.header-left a {
-  
+.header-left a:first-of-type {
+  margin-right: 50px;
 }
 
 .header-profile {
@@ -162,28 +162,17 @@ a {
   align-items: center;
 }
 
-.header-profile img {
-
-}
-
-#logo {
-  
-} 
-
 .header-middle{
   display: flex;
   align-items: center;
 }
 
 .header-middle input{
-width: 300px;
-padding:4px 10px;
-margin:0 70px;
+  width: 300px;
+  padding:4px 10px;
+  margin:0 70px;
 }
 
-.header-middle a {
-  
-}
 
 .header-right {
   display: flex;
@@ -192,7 +181,8 @@ margin:0 70px;
 }
 
 .header-right img {
-  max-width: 50px;
+  width: 50px;
+  height:50px;
   border-radius: 50%;
 }
 
@@ -223,11 +213,12 @@ margin:0 70px;
 .sliders {
   display: flex;
   justify-content: center;
-  margin-bottom: 1em;
+  height:22px;
 }
 
 #track-bar {
-  width: 700px;
+  position:relative;
+  width: 600px;
   height: 8px;
   background-color: rgb(175, 175, 175);
   border-radius: 10px;
@@ -236,8 +227,21 @@ margin:0 70px;
 #track-progress {
   height: 8px;
   width:0%;
-  background-color: crimson;
+  background-color: #0075ff;
   border-radius: 10px;
+}
+
+#track-actual-time {
+  color:#fff;
+  position: absolute;
+  top: -7px;
+  left: -53px;
+}
+#track-full-time {
+  color:#fff;
+  position: absolute;
+  top: -7px;
+  left: 613px;
 }
 
 .volume-slider {
@@ -245,6 +249,18 @@ margin:0 70px;
   position: absolute;
   height: 8px;
   display: flex;
+}
+
+.volume-slider::before{
+  background-image: url(../img/icons/speaker.png);
+  background-repeat: no-repeat;
+  background-size: 20px 16px;
+  position: relative;
+  top: -4px;
+  right: 10px;
+  width: 20px;
+  height: 16px;
+  content: "";
 }
 
 .track-info {
@@ -257,41 +273,116 @@ margin:0 70px;
 
 /* songs */
 
-.track-wrapper {
-  border: solid 1px;
+.track-wrapper,
+.artist-wrapper,
+.album-wrapper 
+{
+  outline: solid 1px #233f40;
+  border:solid 2px transparent;
   cursor: pointer;
   padding: 1em;
   background-color: #d4d4d4;
   display:flex;
   width: 80%;
   margin: 50px auto;
+  box-sizing: border-box;
+  transition: border 0.1s;
+}
+/* f144 */
+.track-wrapper:hover,
+.artist-wrapper:hover,
+.album-wrapper:hover {
+  outline:solid 0px transparent;
+  border:solid 2px #233f40;
+}
+
+.track-img-container {
+  position:relative;
+}
+
+.track-wrapper:hover img{
+  opacity: 0.6;
+}
+
+.track-wrapper:hover .track-img-container::before {
+  font-family: "Font Awesome 5 Free";
+  content:'\f144';
+  font-weight: 600;
+  position:absolute;
+  color:#0075ff;
+  left: 32px;
+  top: 41px;
+  transform: scale(2.5);
+  z-index:1;
+}
+
+.current-track-img-container {
+  position: relative;
 }
 
 .track-wrapper img {
   max-width: 80px;
 }
 
-#track-current-time {
-  color:#fff;
+.playing {
+  background-color: #60a4a7ab;
 }
 
-/*genres view*/
+.playing .current-track-img-container::before{
+  font-family: "Font Awesome 5 Free";
+  content:'\f28b';
+  position:absolute;
+  font-weight:600;
+  color: #233f40;
+  left: 32px;
+  transform: scale(2.5);
+  top: 41px;
+  z-index:1;
+}
 
-.active-genre{
+.paused {
+  background-color: #60a4a7ab;
+}
+
+.paused .current-track-img-container::before{
+  font-family: "Font Awesome 5 Free";
+  content:'\f144';
+  font-weight: 600;
+  color: #233f40;
+  position:absolute;
+  left: 32px;
+  transform: scale(2.5);
+  top: 41px;
+  z-index:1;
+}
+
+.current-track-img-container img {
+  opacity:0.6;
+}
+
+/* Genres view*/
+
+#genre-container {
+  margin:2em 0;
+}
+
+.active-genre {
   background-color:rgba(194, 79, 135, 0.5)
 }
 
- .upload-container form{
+/* Upload view*/
+
+ .upload-container form {
   text-align:center;
   margin-top:5em;
 }
 
 .upload-container input[type="submit"] {
   margin-top: 40px;
-    margin-bottom: 0;
-    position: relative;
-    margin-left: 5em;
-    padding: 6px 25px;
+  margin-bottom: 0;
+  position: relative;
+  margin-left: 5em;
+  padding: 6px 25px;
 }
 
 .file-select {
@@ -299,7 +390,7 @@ margin:0 70px;
 }
 
 .new-song-img {
-  margin-bottom:2em;
+  margin-bottom:2em; 
 }
 
 select {
@@ -308,9 +399,29 @@ select {
   text-align: center;
 }
 
+.new-song-info label {
+  display:block;
+  margin-bottom:0.5em;
+}
+
+.upload-form-group {
+  margin:3em 0;
+}
+
+.upload-form-group input {
+  width:35%;
+  padding:3px 10px;
+}
+
+/* userProfile view */
 .user-info {
   display:flex;
   margin-top:3em;
+}
+
+.user-presentation {
+  display: flex;
+  width: 75%;
 }
 
 .user-info img {
@@ -323,6 +434,18 @@ select {
 
 .user-bio {
   margin-left:2em;
+}
+
+.user-info .edit {
+  width: 15%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.user-info .edit a {
+  font-size: 14px;
+  margin-top:1em;
 }
 
 .user-bio h3 {

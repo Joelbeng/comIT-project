@@ -93,7 +93,7 @@ const getUser = (username, cbResult) => {
   });
 }
 
-const getUserByAlbum = (username, albumName, cbResult) => {
+const getUserByAlbum = (albumName, cbResult) => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
     if (error) {
       cbResult({ 

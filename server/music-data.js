@@ -17,11 +17,7 @@ const addUserGenres = (username, userGenres, cbResult) => {
         if (error){
           cbResult(false);
         } else {
-          cbResult(
-            {
-            success:true,
-            user:"registered"
-            });
+          cbResult(true);
         }
 
         client.close();
@@ -29,6 +25,7 @@ const addUserGenres = (username, userGenres, cbResult) => {
     }
   });
 }
+
 //Función que busca todos géneros de la página para renderizarlos en el front 
 const getAllGenres = cbResult => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
@@ -52,7 +49,7 @@ const getAllGenres = cbResult => {
   });
 }
 
-//Función que busca en la db las canciones que coinciden con los géneros elegidos por el usuario
+// Función que busca en la db las canciones que coinciden con los géneros elegidos por el usuario
 const getSongsByGenre = (userGenres, cbResult) => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
     
@@ -67,31 +64,7 @@ const getSongsByGenre = (userGenres, cbResult) => {
         if (error) {
           cbResult({});
         } else {
-          cbResult(songs);
-        }
-
-        client.close();
-      });
-    }
-  });
-}
-
-//Función que busca en la db las canciones que coinciden con los géneros elegidos por el usuario
-const getSongsByAlbum = (albumName, cbResult) => {
-  mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
-    
-    if (error) {
-      cbResult({});
-    } else {
-      const demusic = client.db("demusic");
-      const musicCollection = demusic.collection("music");
-
-      musicCollection.find({ "album.name": albumName }).toArray((error, songs) => {
-
-        if (error) {
-          cbResult({});
-        } else {
-          cbResult(songs);
+          cbResult(songs.reverse()); // se hace reverse() para que estén primero las últimas canciones subidas
         }
 
         client.close();
@@ -115,7 +88,7 @@ const getSongsByFilter = (object, cbResult) => {
         if (error) {
           cbResult({});
         } else {
-          cbResult(songs);
+          cbResult(songs.reverse());
         }
 
         client.close();
@@ -123,13 +96,21 @@ const getSongsByFilter = (object, cbResult) => {
     }
   });
 }
-//Función que inserta documentos (canciones) en la colección music, con los datos que recibo cuando el usuario sube la canción
+
+// Función que inserta documentos (canciones) en la colección music, con los datos que recibo cuando el usuario sube la canción
 const insertAlbum = (username, songNames, songFileNames, genre, albumName, albumYear, songImg, cbResult) => {
   
-  // creo el array de objetos a insertar
+  // se chequea si el usuario subió alguna img para la canción o album. Si no lo hizo se le agrega una img default
+  if (!songImg) {
+    songImg = "song.png";
+  } else {
+    songImg = songImg[0].filename;
+  }
+
+  // se crea el array de objetos a insertar
   let newAlbum = [];
   
-  // itero la cantidad de canciones que el usuario subió y completo cada objeto con los datos correspondientes
+  // se itera la cantidad de canciones que el usuario subió, se completa cada objeto con los datos correspondientes
   for (let i = 0; i < songNames.length; i++) {
     newAlbum.push(
       {
@@ -142,13 +123,12 @@ const insertAlbum = (username, songNames, songFileNames, genre, albumName, album
           "year":albumYear,
           "img":`img/tracks/${songImg}`
         },
-        "file":`music/${songFileNames[i]}`,
+        "file":`${songFileNames[i]}`,
         "img": `img/tracks/${songImg}`
       }  
     );
   }  
 
-  //inserto en la db, dentro de la colección music todas las canciones nuevas
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
     if (error) {
       cbResult(false);
@@ -170,14 +150,20 @@ const insertAlbum = (username, songNames, songFileNames, genre, albumName, album
   });
 }
 
-//Función que inserta un documento (canción) en la colección music
+// Función que inserta un documento (canción) en la colección music
 const insertSingle = (username, songName, songFileName, genre, songImg, cbResult) => {
   
+  if (!songImg) {
+    songImg = "song.png";
+  } else {
+    songImg = songImg[0].filename;
+  }
+
   const newSingle = {
     "name": songName,
     "genre": genre,
     "artist": username,
-    "file":`music/${songFileName}`,
+    "file":`${songFileName}`,
     "img": `img/tracks/${songImg}`
   }  
 
@@ -190,9 +176,8 @@ const insertSingle = (username, songName, songFileName, genre, songImg, cbResult
 
       musicCollection.insertOne(newSingle, (error, result) => {
         if (error) {
-          cbResult(error);
+          cbResult(false);
         } else {
-          console.log(result)
           cbResult(true);
         }
 
@@ -203,7 +188,7 @@ const insertSingle = (username, songName, songFileName, genre, songImg, cbResult
 
 }
 
-//función que actualiza los tracks que hay en el campo usertrack, dentro de la colección users en la db
+// Función que actualiza los tracks que hay en el campo usertrack, dentro de la colección users en la db
 const insertSongsInUserCol = (username, songFileNames, cbResult) => {
   
   auth.getUser(username, result => {
@@ -275,5 +260,4 @@ const insertAlbuminUserCol = (username, albumName, cbResult) => {
   });
 }    
 
-
-module.exports = { getAllGenres, addUserGenres, getSongsByGenre, getSongsByAlbum, getSongsByFilter, insertAlbum, insertSingle, insertSongsInUserCol, insertAlbuminUserCol }
+module.exports = { getAllGenres, addUserGenres, getSongsByGenre, getSongsByFilter, insertAlbum, insertSingle, insertSongsInUserCol, insertAlbuminUserCol }

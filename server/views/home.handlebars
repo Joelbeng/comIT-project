@@ -6,8 +6,14 @@
 
 <main class="home-container">
   {{#if searchTitle}}
-  <h3>{{searchTitle}}</h3>
+    <h4>{{searchTitle}}</h4>
   {{/if}}
+  {{#unless searchTitle}}
+    {{#if user.userGenres}}
+      <h2>Music for you</h2>
+      <p>({{user.userGenres}})</p>
+    {{/if}}
+  {{/unless}}
   <ul>
   {{#each songs}}
     <li class="track-li">
@@ -48,7 +54,7 @@
   {{#if foundArtists}}
   {{#each foundArtists}}
     <li class="artist-li">
-      <div class="track-wrapper">
+      <div class="artist-wrapper">
         <div class="artist-img-container">
           <img src="/img/profile/{{this.userdata.profile.pic}}">
           <p>Artista</p>
@@ -63,7 +69,7 @@
   {{#if foundAlbums}}
   {{#each foundAlbums}}
     <li class="album-li">
-      <div class="track-wrapper">
+      <div class="album-wrapper">
         <div class="album-img-container">
           <img src="/{{this.img}}">
           <p>Album</p>

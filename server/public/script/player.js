@@ -1,92 +1,145 @@
-let currentTrackDiv; 
-let songLoaded; 
-let interval; 
-const playBtn = document.getElementById("play-btn");
+let songLoaded; // canción cargada en el reproductor
+let interval; // almacena el setInterval de la función updateTime()
+let lastTrackDiv; // almacena el div de última canción reproduciéndose
 
 window.onload = () => {
   showDuration();
-  getSong();
+  getSongByClick();
+  getSongDataByAJAX();
 }
 
-//Cargo las canciones que muestro en la lista para poder leer su duración y renderizarla en el front
+window.onbeforeunload = () => {
+  sendSongDataByAJAX();
+}
+
+// Función que muestra la duración total de cada canción de la lista
 const showDuration = () => {
   const trackDiv = document.getElementsByClassName("track-wrapper");
 
   for (let i = 0; i < trackDiv.length; i++) {
     const songId = trackDiv[i].getAttribute("data-song-id");
-    
-    const track = new Audio(`${songId}`);
+    const track = new Audio(`/music/${songId}`);
 
     track.addEventListener("loadedmetadata",() => { 
       const minutes = add0(parseInt(track.duration / 60));
       const seconds = add0(parseInt(track.duration % 60));
       document.getElementsByClassName("track-duration")[i].textContent += ` duración: ${minutes}:${seconds}`;
     });
-    
   }
 }
 
-//Función que realiza diferentes acciones con la canción que clickeo
-const getSong = () => {
+// Función que carga, reproduce o pausa la canción clickeada
+const getSongByClick = () => {
   const trackDiv = document.getElementsByClassName("track-wrapper");
-  const player = document.getElementById("player")
-
-  for (let i = 0; i < trackDiv.length; i++) {
-    
-    //al hacer click en uno de los divs con canciones, se obtiene su data value, y se guarda en la var songSelected
-    trackDiv[i].addEventListener("click", ev => { 
-      const songSelected = ev.currentTarget.getAttribute("data-song-id");
+  const player = document.getElementById("player");
   
-      /*- si el data-id del repoductor está vacío, le paso como valor el id de la canción. Ejecuto loadTrack.
+  for (let i = 0; i < trackDiv.length; i++) {
+    trackDiv[i].addEventListener("click", ev => {    
+      // si se clickea sobre el nombre de artista o album no se carga ni reproduce la canción
+      if (ev.target.tagName === "A") return;
+      
+      // se obtiene su data value (que contiene el nombre del archivo de la canción)
+      const songSelected = ev.currentTarget.getAttribute("data-song-id");
+      
+      /*- si el data-id del repoductor está vacío, le paso como valor el id de la canción. Ejecuto loadTrack().
         - si hice click en la misma canción que estoy reproduciendo, ejecuto playPause()
-        - si no, es porque hice click en una canción diferente a la que estoy reproduciendo    
+        - si no, es porque hice click en una canción diferente a la que estoy reproduciendo. Paro la anterior y reproduzco la seleccionada    
       */ 
    
       if (!player.dataset.id) { 
         player.dataset.id = songSelected;
         loadTrack(songSelected);
       } else if (player.dataset.id == songSelected) {        
-        playPause();
+        playPause(null,null, i);
       } else {
         player.dataset.id = songSelected
         stop();
         loadTrack(songSelected);
       }
-
     });
   }
 }
 
-//función que carga la carga la canción. 
-//Cuando se complete el estado "loadeddata" da play
-const loadTrack = song => {
-  songLoaded = new Audio(`${song}`);
-  
-  // estaba en "progress" anteriormente, pero al ir moviendo la duración con el progressBar se pausaba sola la canción. Con este estado funciona mejor
-  songLoaded.addEventListener("loadeddata", () => {
-    playPause();
-    
-  });
+/**
+ * Función que carga la canción (crea el elemento audio), y muestra la duración total de la misma en el reproductor
+ * 
+ * @param {string} song || nombre del archivo. Único param esencial
+ * @param {string} songState || estado de la canción de la vista anterior, en pausa o en reproducción
+ * @param {number} songTime || tiempo actual de la canción de la vista anterior
+ */
+const loadTrack = (song, songState, songTime) => {
+  songLoaded = new Audio(`/music/${song}`);
 
+  const currentTrackIndex = checkCurrentTrack();
+
+  songLoaded.addEventListener("loadeddata", function() {
+    const minutes = add0(parseInt(this.duration / 60));
+    const seconds = add0(parseInt(this.duration % 60));
+    document.getElementById("track-full-time").textContent =`${minutes}:${seconds}`;
+
+    playPause(songState, songTime, currentTrackIndex);
+  });
 }
 
-const playPause = () => {
-  //songLoaded no está inicializada al cargar la página, y con esta condición evito el error en la consola
-  if(!songLoaded) return; 
+/**
+ * Función que da play o pausa a la canción, y resalta su div contenedor mediante clases 
+ * 
+ * Los primeros dos parámetros, son los mismos que los de la función loadTrack()
+ * @param {number} trackIndex || índice/posición del div que contiene la canción que se está reproduciendo
+ */
+const playPause = (songState, songTime, trackIndex) => { 
+  if(!songLoaded) return; // se evita error por undefined
+
+  if (lastTrackDiv) {
+    lastTrackDiv.classList.remove("playing"); 
+    lastTrackDiv.classList.remove("paused");
+    lastTrackDiv.children[0].classList.add("track-img-container");
+  }
+
+  let currentTrackDiv;
   
+  if (trackIndex || trackIndex === 0) {
+    currentTrackDiv = document.getElementsByClassName("track-wrapper")[trackIndex];
+    lastTrackDiv = currentTrackDiv;
+  } else {
+    currentTrackDiv = lastTrackDiv;
+  }
+  
+  if (currentTrackDiv) {
+    currentTrackDiv.children[0].classList.remove("track-img-container");
+    currentTrackDiv.children[0].classList.add("current-track-img-container");
+  }
+
+  if (songState) {
+    songLoaded.currentTime = songTime;
+    updateTime(); // se ejecuta para actualizar el tiempo actual de la canción cuando está en pausa, entre páginas
+    changeBarProgess();
+    
+    if (songState === "paused") { // se evita autoplay
+      if (currentTrackDiv) currentTrackDiv.classList.add("paused"); 
+      return;
+    }
+
+  }
+
   if (songLoaded.paused) {
     songLoaded.play();
     changeVolume();
-    playBtn.textContent="PAUSE";
+
+    if (currentTrackDiv) currentTrackDiv.classList.add("playing");
     
-    //cada medio segundo ejecuto la función updateTime para mostrar el tiempo actual y progreso en la barra de la canción.
+    // Cada medio segundo se ejecuta la función updateTime para mostrar el tiempo actual y progreso en la barra de la canción.
     interval = setInterval(updateTime, 500);
     changeBarProgess();  
   } else {
     songLoaded.pause();
-    playBtn.textContent="PLAY";
+
+    if (currentTrackDiv) {
+      currentTrackDiv.classList.remove("playing");
+      currentTrackDiv.classList.add("paused");
+    }
     
-    //Deja de correr el setInterval que ejecuta la función updateTime()  
+    // Deja de correr el setInterval que ejecuta la función updateTime()  
     window.clearInterval(interval);
   }
 } 
@@ -94,59 +147,62 @@ const playPause = () => {
 const stop = () => {
   if(!songLoaded) return;
 
-  songLoaded.currentTime = 0;
-
-  // Ejecuto updateTime() una vez más para que el valor de la barra de progreso vaya a 0
-  updateTime(); 
+  songLoaded.currentTime = 0
+  updateTime(); // Se ejecuta para que el valor de la barra de progreso vaya a 0
   window.clearInterval(interval);
-  playPause();
+  songLoaded.pause();
+  document.getElementById("play-btn").textContent="PLAY";
 }
 
 const playNext = () => {
   if(!songLoaded) return;
 
   const trackDiv = document.getElementsByClassName("track-wrapper");
-  const currentTrack = checkCurrentTrack();
+  const currentTrackIndex = checkCurrentTrack();
   
-  // Me tira error porque espero a que termine la canción, antes de sacarlo. Si borro el songLoaded.ended se arregla
-  if (!trackDiv[currentTrack + 1] && songLoaded.ended) { 
+  // Si es la última canción de la lista y terminó de reproducirse, ejecuto stop() y salgo de la función
+  if (!trackDiv[currentTrackIndex + 1] && songLoaded.ended) { 
     stop();
     return;
   }
+
+  // Si no hay más canciones en la lista, salgo de la función 
+  if(!trackDiv[currentTrackIndex + 1]) return;
   
-  const nextTrackDiv = trackDiv[currentTrack + 1];
+  const nextTrackDiv = trackDiv[currentTrackIndex + 1];
   nextSong = nextTrackDiv.dataset.songId;
 
   player.dataset.id = nextSong;
   stop();
   loadTrack(nextSong);
-  
 }
 
-// Función que carga la canción previa (en posición) a la que se está reproduciendo 
 const playPrevious = () => {
-  if(!songLoaded) return;
+  if (!songLoaded) return;
 
   const trackDiv = document.getElementsByClassName("track-wrapper");
-  const currentTrack = checkCurrentTrack();
-  
-  // Si a la posición del índice del div actual le resto 1 y obtengo como resultado -1, es porque el índice es 0 (no hay divs previos). Entonces salgo de la función 
-  if (currentTrack - 1 === -1) { 
+  const currentTrackIndex = checkCurrentTrack();
+
+  // Si currentTrack es 0 (no hay divs previos), o si su valor es undefined (por cambiar de vista) se reinicia la canción.
+  if (currentTrackIndex === 0 || !currentTrackIndex) {
+    songLoaded.currentTime = 0;
+    updateTime();
     return;
   }
   
-  const previousTrackDiv = trackDiv[currentTrack - 1];
-  previousSong = previousTrackDiv.dataset.songId;
+  if (!currentTrackIndex) return;
+ 
+  const previousTrackIndex = trackDiv[currentTrackIndex - 1];
+  previousSong = previousTrackIndex.dataset.songId;
 
   player.dataset.id = previousSong;
   stop();
   loadTrack(previousSong);
 }
 
-//función que muestra el tiempo actual de la canción
+// Función que muestra el tiempo actual de la canción
 const updateTime = () => {
-  const trackDiv = document.getElementsByClassName("track-wrapper");
-  const currentTime = document.getElementById("track-current-time"); 
+  const currentTime = document.getElementById("track-actual-time"); 
 
   if (!songLoaded) return;
   
@@ -161,24 +217,33 @@ const updateTime = () => {
   setBarProgress();
 } 
 
-// función que agrega un 0 por delante, si el valor del parametro (minuto, segundos) es menor a 10. 
+/**
+ * Función que agrega un 0 por delante, si el valor del parametro es menor a 10
+ * 
+ * @returns {string} número en string
+ */
 const add0 = (time) => {
   return (time < 10) ? "0" + time.toString() :  time.toString();
 } 
 
-// Función que retorna el índice/posición del div que está reproduciendo la canción.
+/**
+ * Función que retorna el índice/posición del div que está reproduciendo la canción.
+ * 
+ * @returns {number} índice del div actual
+ */
 const checkCurrentTrack = () => {
   const player = document.getElementById("player");
   const trackDivArray = Array.from(document.getElementsByClassName("track-wrapper"));
-  let currentTrackDiv;
+  let currentTrackIndex;
   
   // Recorro la cantidad total de divs con canciones, buscando el que tiene el mismo data value que el reproductor y quedandome con su índice
   for (let i = 0; i < trackDivArray.length; i++) {
     if (trackDivArray[i].dataset.songId == player.dataset.id){
-      currentTrackDiv = trackDivArray.indexOf(trackDivArray[i]);
+      currentTrackIndex = trackDivArray.indexOf(trackDivArray[i]);
+      break;
     }
   }
-  return currentTrackDiv;
+  return currentTrackIndex;
 }
 
 // Función que muestra en la barra de progreso el tiempo actual de la canción
@@ -189,28 +254,79 @@ const setBarProgress = () => {
 
 // Función que modifica el tiempo actual de la canción si el usuario hace click sobre la barra de progreso
 const changeBarProgess = () => {
-if(!songLoaded) return;
+  if(!songLoaded) return;
 
-const bar =document.getElementById("track-bar");
+  const bar =document.getElementById("track-bar");
 
-bar.addEventListener("click", function(ev) {
-  const newProgress = ev.offsetX / this.offsetWidth;
-  songLoaded.currentTime = newProgress * songLoaded.duration;
-  setBarProgress();
-});
+  bar.addEventListener("click", function(ev) {
+    const newProgress = ev.offsetX / this.offsetWidth;
+    songLoaded.currentTime = newProgress * songLoaded.duration;
+    setBarProgress();
+    updateTime();
+  });
 }
 
-// Función que modifica el volumen de la canción
-const changeVolume = () => {
+/**
+ * Función que modifica el volumen de la canción
+ * 
+ * @param {string} AJAXvol || valor del volumen de la canción reproduciéndose en la vista anterior
+ */
+const changeVolume = (AJAXvol) => {
   if (!songLoaded) return;
 
   const volumeInput = document.getElementById("volume-input");
 
-  // Seteo el volumen de la canción antes del evento, por si el usuario modificó el volumen anter de dar PLAY
+  if (AJAXvol) volumeInput.value = AJAXvol;
+
+  // Se setea el volumen de la canción por fuera del eventListener, por si el usuario modificó el volumen anter de dar PLAY
   songLoaded.volume = volumeInput.value;
 
-  // Cuando el usuario deslice sobre la barra volumen, esta a se va a modificar 
+  // Cuando el usuario deslice sobre la barra volumen este se modifica
   volumeInput.addEventListener("input", function() {
     songLoaded.volume = this.value;
   });
+}
+
+
+// Función que trae los datos de la canción que estaba cargada en el reproductor en la vista anterior. Con esos datos carga de vuelta la canción para tener continuidad de reproducción entre páginas
+const getSongDataByAJAX = () => {
+  const xhr = new XMLHttpRequest();
+      
+      xhr.onload = function() {
+        if (this.responseText) {
+          const songData = JSON.parse(this.responseText);
+
+          // si el responseText es válido, se le asigna al data-value del reproductor el filename de la canción, para que la función getSongByClick() funcione como debe. Se ejecuta loadTrack()
+          if (songData) {
+            document.getElementById("player").dataset.id = songData.song;
+            loadTrack(songData.song, songData.state, songData.actualTime);
+            changeVolume(songData.volume);
+          }
+        }
+      }
+
+      xhr.open("GET", "/playerInfo");
+      xhr.send();
+}
+
+// Función que envía al back los datos de la canción reproduciéndose en el momento
+const sendSongDataByAJAX = () => {
+  const currentSong = document.getElementById("player").dataset.id;
+  
+  if (currentSong) {
+    // Objeto que contiene la información de la canción que se está reproduciendo en el momento
+    const currentSongData = {
+      song: currentSong,
+      actualTime: songLoaded.currentTime,
+      volume: document.getElementById("volume-input").value,
+      state: (songLoaded.paused) ? "paused": "playing"
+    }
+
+    const xhr = new XMLHttpRequest();
+    const body = JSON.stringify(currentSongData);
+
+    xhr.open("POST", "/playerInfo");
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(body);
+  }
 }

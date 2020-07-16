@@ -1,32 +1,73 @@
+<style>
+  #successUpload {
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    margin:0 auto;
+    width:25%;
+    text-align: center;
+    padding:20px;
+    color:#fff;
+    background-color:#34a764;
+    transition:top 0.8s;
+  }
+
+  #failUpload {
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    margin:0 auto;
+    width:25%;
+    text-align: center;
+    padding:20px;
+    color:#fff;
+    transition:top 0.8s;
+    background-color:#f15e5e;
+  }
+</style>
+
 <main class="my-profile-container">  
   <section class="user-info">  
-    <div class="profile-pic">
-      <img src="img/profile/{{user.avatarImg}}">
+    <div class="user-presentation">
+      <div class="profile-pic">
+        <img src="img/profile/{{user.avatarImg}}">
+      </div>
+      <div class="user-bio">
+      <h3>{{user.username}}</h3>
+      <p>{{userBio}}</p>
+      </div>
     </div>
-    <div class="user-bio">
-      <h3>{{user.username}}</h3> {{!-- user.username --}}
-      <p>{{bio.bio}}</p> {{!-- user.bio --}}
-      <a href="/setProfile">Edit Bio</a>
+    <div class="edit">
       <a href="/genres">My Genres</a>
-    </div>
+      <a href="/setProfile">Edit Bio</a>
+     </div>
   </section>
   <section class="user-songs">
-  <ul>
-  {{#each songs}}
-    <li class="track-li">
-      <div class="track-wrapper" data-song-id="{{this.file}}"> {{!-- Cambiarlo por el id --}}
-        <div class="track-img-container">
-          <img src="{{this.img}}">
+    <ul>
+    {{#each songs}}
+      <li class="track-li">
+        <div class="track-wrapper" data-song-id="{{this.file}}">
+          <div class="track-img-container">
+            <img src="{{this.img}}">
+          </div>
+          <div class="track-info">
+            <p>{{this.name}}</p>
+            <a href="#">{{this.artist}}</a>
+            <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
+            <p class="track-duration"></p>
+          </div>
         </div>
-        <div class="track-info">
-          <p>{{this.name}}</p>
-          <a href="#">{{this.artist}}</a>
-          <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
-          <p class="track-duration"></p>
-        </div>
-      </div>
-    </li>
-  {{/each}}
-  </ul>
+      </li>
+    {{/each}}
+    </ul>
   </section>
+  {{#if uploadMsg}}
+    <div id={{uploadMsg.id}}>
+      <p>{{uploadMsg.msg}}</p>
+    </div>
+  {{/if}}
 </main>
+
+<script src="script/uploadMsg.js"></script>
