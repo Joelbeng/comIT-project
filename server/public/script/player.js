@@ -93,6 +93,7 @@ const playPause = (songState, songTime, trackIndex) => {
   if (lastTrackDiv) {
     lastTrackDiv.classList.remove("playing"); 
     lastTrackDiv.classList.remove("paused");
+    lastTrackDiv.children[0].classList.remove("current-track-img-container");
     lastTrackDiv.children[0].classList.add("track-img-container");
   }
 
