@@ -13,11 +13,11 @@ Instalación:
 
 Tecnologías utilizadas:
 ```
-* HTML5
-* CSS3
-* Javascript
-* Nodejs
-* Express.js
-* Handlebars
-* MongoDB
+_ HTML5
+_ CSS3
+_ Javascript
+_ Nodejs
+_ Express.js
+_ Handlebars
+_ MongoDB
 ```
