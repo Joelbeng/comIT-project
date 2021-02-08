@@ -12,7 +12,7 @@ Instalación:
 4. Ingresar en la terminal "npm start".
 
 Tecnologías utilizadas:
-
+```
 * HTML5
 * CSS3
 * Javascript
@@ -20,4 +20,4 @@ Tecnologías utilizadas:
 * Express.js
 * Handlebars
 * MongoDB
-
+```
