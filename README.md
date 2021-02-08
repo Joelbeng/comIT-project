@@ -19,4 +19,5 @@ Tecnologías utilizadas:
 * Express.js
 * Handlebars
 * MongoDB
+* Multer
 
