@@ -1,4 +1,4 @@
-# Demusic - Proyecto Final ComIt
+# Demusic - Proyecto Final ComIt :cd: :notes:
 
 App para reproducir música, subir canciones(.mp3) o albumes.
 
@@ -16,7 +16,7 @@ npm install
 npm start
  ```
 
-### Tecnologías utilizadas:
+### Tecnologías utilizadas: :wrench:
 * HTML5
 * CSS3
 * Javascript
@@ -26,7 +26,7 @@ npm start
 * MongoDB
 * Multer
 
-### Tareas a desarrollar:
+### Tareas a desarrollar: :hammer:
 
 * Desarrollar la UI
 * Terminar de maquetar vista de edicion de bio
