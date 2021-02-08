@@ -1,7 +1,7 @@
 # Demusic - Proyecto Final ComIt
 
 App para reproducir música, subir canciones o albumes.
-#f6f8fa
+
 Pre-requisito:
  Tener Node instalado.
 
