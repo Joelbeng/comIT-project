@@ -5,7 +5,7 @@ App para reproducir música, subir canciones(.mp3) o albumes.
 ### Pre-requisito:
  * Tener Node instalado.
 
-### Instalación:
+### Instalación: :computer:
 1. Clonar el repositorio: 
 ```
 git clone https://github.com/Joelbeng/comIT-project.git
