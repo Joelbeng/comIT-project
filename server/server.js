@@ -19,7 +19,7 @@ const app = express();
 app.set("views",path.join(__dirname,"views"));
 
 app.engine("handlebars", exphbs({
-  defaultLayout: "logged",
+  defaultLayout: "app",
   layoutsDir: path.join(__dirname,"views/layouts")
 }));
 
@@ -78,20 +78,22 @@ app.use(expSession({
 app.get("/", (req, res) => {
 
   if (req.session.logged) {
-    if (currentSong) currentSong.song = "paused"; // Se evita que la canción se reproduzca repentinamente
     res.redirect("/home");
+    if (currentSong) { 
+      currentSong.state = "paused"; // se evita autoplay
+      currentSong.actualTime = 0;
+    }
     return
   }
 
-  res.render("landing", { layout:"public" });
+  res.render("landing", { layout:"index" });
   req.session.destroy();
   currentSong = null; // se elimina la canción cargada en el reproductor
-
 });
 
 // Página principal, home
 app.get("/home", (req, res) => {
-  
+
   if (req.session.logged) { 
     const userGenres = req.session.logged.userGenres;
 
@@ -103,21 +105,19 @@ app.get("/home", (req, res) => {
           { 
             user: req.session.logged, 
             songs: result,
+            title:"musicForYou",
+            homeActive: "active-view",
             player: true
           }); 
         } else {
           res.redirect("/error");
         }
       });
+
     } else {
       music.getSongsByFilter({}, result => {
         if (result) {
-          res.render("home", 
-          { 
-            user: req.session.logged,
-            songs: result,
-            player: true 
-          });
+          res.redirect("/home-all-songs");
         } else {
           res.redirect("/error")
         }
@@ -129,6 +129,7 @@ app.get("/home", (req, res) => {
       if (result) {
         res.render("home", { 
           songs: result,
+          homeActive: "active-view",
           player:true 
         });
       } else {
@@ -139,14 +140,35 @@ app.get("/home", (req, res) => {
 
 });
 
+app.get("/home-all-songs",(req, res) => {
+  music.getSongsByFilter({}, result => {
+    if (result) {
+      res.render("home", 
+      { 
+        user: req.session.logged,
+        songs: result,
+        title:"allSongs",
+        homeActive: "active-view",
+        player: true 
+      });
+    } else {
+      res.redirect("/error");
+    }
+  });
+});
+
 // Página de Login
 app.get("/login", (req, res) => {
-  res.render("login", { layout:"public", msg: req.session.logmessage });
+  res.render("login", { layout:"index", msg: req.session.authMessage });
+  if (req.session.authMessage) delete req.session.authMessage;
+  currentSong = null;
 });
 
 // Página de Registro
 app.get("/register", (req, res) => {
-  res.render("register", { layout:"public", msg: req.session.regmessage });
+  res.render("register", { layout:"index", msg: req.session.authMessage });
+  if (req.session.authMessage) delete req.session.authMessage;
+  currentSong = null;
 });
 
 // Página de elección de géneros
@@ -156,7 +178,7 @@ app.get("/genres", (req ,res) => {
     if (genres) {
       res.render("genres", {
         user:req.session.logged,
-        genres: genres,
+        genres,
         player:false
       });
     } else {
@@ -173,7 +195,8 @@ app.get("/upload", (req, res) => {
     if (genres) {
       res.render("upload", {
         user: req.session.logged,
-        genres: genres,
+        genres,
+        uploadActive:"active-view",
         player:true
       });
     } else {
@@ -185,7 +208,7 @@ app.get("/upload", (req, res) => {
 
 // Página de perfil de usuario
 app.get("/userProfile", (req, res) => {
-  let uploadMsg; // va a contener un objeto que detalla el estado de lo subido recientemente en el front
+  let uploadMsg; // va a contener un objeto que detalla en el front el estado de lo subido recientemente
 
   if (req.session.logged.uploadAlert) {
     uploadMsg = req.session.logged.uploadAlert;
@@ -197,14 +220,31 @@ app.get("/userProfile", (req, res) => {
       res.redirect("/error");
       return;
     }
-  
+
     music.getSongsByFilter({ artist: req.session.logged.username }, songs => {
       if (songs) {
-        res.render("userProfile",{
+        let userAlbums = [];
+        
+        if (result.user.useralbums.length > 0) {   
+          const filteredSongs = songs.filter(song => song.album); // se filtran canciones que tienen la propiedad album
+
+          result.user.useralbums.forEach(album => {         
+            userAlbums.push(filteredSongs.find(song => song.album.name === album)); // por cada album del usuario, se busca una canción que tenga el mismo nombre de album
+          });
+ 
+          userAlbums = userAlbums.map(finalAlbum => ({
+              name: finalAlbum.album.name,
+              year: finalAlbum.album.year,
+              img: finalAlbum.album.img              
+          }));              
+        }
+
+        res.render("userProfile", {
           user:req.session.logged,
-          uploadMsg,
           songs,
+          albums:userAlbums,
           userBio:result.user.userdata.profile.bio,
+          uploadMsg,
           player:true
         });
 
@@ -228,8 +268,7 @@ app.get("/setProfile", (req, res) => {
 });
 
 // Perfil del artista seleccionado 
-app.get("/profile/:artist", (req, res) => {
-  console.log(req.params);
+app.get("/artist/:artist", (req, res) => {
 
   // Si se hace click sobre mi propio nombre de artista (username) en la canción, se redirige al perfil del usuario
   if (req.session.logged) {
@@ -240,26 +279,45 @@ app.get("/profile/:artist", (req, res) => {
   }
 
   // Se busca al usuario clickeado para obtener su bio y su foto. Luego obtenemos sus canciones con la segunda función
-  auth.getUser(req.params.artist, user => {
-    if (user) {
-      music.getSongsByFilter({ artist: req.params.artist }, songs => {
-        if (songs) {
-            res.render("artist",
-              { 
-                songs, 
-                player:true, 
-                artist:user.user.userdata,
-                user:req.session.logged
-              }
-            );
-          } else {
+  auth.getUser(req.params.artist, result => {
+    if (!result.success) {
+      res.redirect("/error");
+      return;
+    }
+
+    music.getSongsByFilter({ artist: req.params.artist }, songs => {
+      if (songs) {
+        let userAlbums = [];
+      
+        if (result.user.useralbums.length > 0) {   
+          const filteredSongs = songs.filter(song => song.album); // se filtran canciones que tienen la propiedad album
+
+          result.user.useralbums.forEach(album => {         
+            userAlbums.push(filteredSongs.find(song => song.album.name === album)); // por cada album del usuario, se busca una canción que tenga el mismo nombre de album
+          });
+
+          userAlbums = userAlbums.map(finalAlbum => ({
+              name: finalAlbum.album.name,
+              year: finalAlbum.album.year,
+              img: finalAlbum.album.img              
+          }));              
+        }
+
+        res.render("artist",
+          { 
+            songs,
+            albums: userAlbums,
+            artist:result.user.userdata,
+            user:req.session.logged,
+            player:true
+          }
+        );
+
+        } else {
           res.redirect("/error");
         }
       });
-    } else {
-      res.redirect("/error");
-    }
-  });
+    });
   
 });
 
@@ -284,31 +342,26 @@ app.post("/login", (req, res) => {
       req.session.logged = result.user;
       res.redirect("home");
     } else {
-        req.session.logmessage = {
-          msg: result.msg
-        }  
+      req.session.authMessage = {
+        msg: result.msg
+      }  
 
-        res.redirect("/login");
+      res.redirect("/login");
     }
   });
 });
 
 // Post AJAX. Inserta en la base de datos los géneros elegidos por el usuario
 app.post("/genres", (req, res) => {
-  // se almacenan los géneros elegidos por el user en la session
-  const userOldGenres = req.session.logged.userGenres;
-  req.session.logged.userGenres = req.body;
+  const userOldGenres = req.session.logged.userGenres; // var con géneros elegidos anteriormente, para saber si el user es nuevo o no
+  req.session.logged.userGenres = req.body; // se almacenan los géneros elegidos por el user en la session
 
   // se recibe como parametro del callback (result) un boolean que es enviado al front
   music.addUserGenres(req.session.logged.username, req.body, result => {
     if (result) {
-      res.send(
-        {
-          result,
-          userOldGenres
-      });
+      res.json({ result, userOldGenres });
     } else {
-
+      res.status(500);
     }
   });
 });
@@ -318,7 +371,7 @@ app.post("/register",(req, res) => {
   
   // se valida que el user haya completado los campos
   if (!req.body.email || !req.body.username || !req.body.pass) {
-    req.session.regmessage = {
+    req.session.authMessage = {
       msg: "Complete all the fields please"
     } 
     res.redirect("/register");
@@ -327,7 +380,7 @@ app.post("/register",(req, res) => {
   
   // se chequea que las contraseñas sean iguales
   if (req.body.pass !== req.body.passrepeat) {
-    req.session.regmessage = {
+    req.session.authMessage = {
       msg: "The passwords must be equal, try it again"
     } 
     res.redirect("/register");
@@ -338,13 +391,13 @@ app.post("/register",(req, res) => {
   auth.getUser(req.body.username, result => {
 
     if (!result.success) {
-      req.session.regmessage = { msg: result.msg }
+      req.session.authMessage = { msg: result.msg }
       res.redirect("/register");
       return;
     }
 
     if (result.user) {
-      req.session.regmessage = {
+      req.session.authMessage = {
         msg: "This username is alredy in use. Choose another one please"
       }
       res.redirect("/register");
@@ -363,7 +416,7 @@ app.post("/register",(req, res) => {
         res.redirect("/genres"); 
 
       } else {
-        req.session.regmessage = {
+        req.session.authMessage = {
           msg:"This operation couldn't be done, retry later please"
         }  
         res.redirect("/register");
@@ -373,7 +426,7 @@ app.post("/register",(req, res) => {
   });
 });
 
-//Post que recibe la imagen y las canciones subidas por el usuario
+// POST que recibe las canciones y la imagen subidas por el usuario
 app.post("/upload", upload.fields([{ name:"newSong" }, { name:"songImg" }]), (req, res) => {
   let songsFileNames =[];
 
@@ -387,26 +440,13 @@ app.post("/upload", upload.fields([{ name:"newSong" }, { name:"songImg" }]), (re
 
     music.insertAlbum(req.session.logged.username, req.body.songname, songsFileNames, req.body.songGenre,req.body.albumName, req.body.albumYear, req.files.songImg, result => {
       if (result) {
-
-        music.insertSongsInUserCol(req.session.logged.username, songsFileNames, result => {
+        music.insertSongsInUserCol(req.session.logged.username, songsFileNames, req.body.albumName, result => {
           if (result) {
-
-            music.insertAlbuminUserCol(req.session.logged.username, req.body.albumName, result => {
-              if (result) {
-                req.session.logged.uploadAlert = { 
-                  msg: "Your new album has been uploaded successfully",
-                  id: "successUpload"
-                }
-                res.redirect("/userProfile");
-              } else {
-                req.session.logged.uploadAlert = { 
-                  msg: "Your album couldn´t be uploaded rigth now. Retry it later please",
-                  id: "failUpload"
-                }
-                res.redirect("/userProfile");   
-              }
-            });
-
+            req.session.logged.uploadAlert = { 
+              msg: "Your new album has been uploaded successfully",
+              id: "successUpload"
+            }
+            res.redirect("/userProfile");
           } else {
             req.session.logged.uploadAlert = { 
               msg: "Your album couldn´t be uploaded rigth now. Retry it later please",
@@ -415,7 +455,6 @@ app.post("/upload", upload.fields([{ name:"newSong" }, { name:"songImg" }]), (re
             res.redirect("/userProfile");
           }
         });
-
       } else {
         req.session.logged.uploadAlert = { 
           msg: "Your album couldn´t be uploaded rigth now. Retry it later please",
@@ -428,9 +467,8 @@ app.post("/upload", upload.fields([{ name:"newSong" }, { name:"songImg" }]), (re
   } else {
 
     music.insertSingle(req.session.logged.username, req.body.songname, songsFileNames, req.body.songGenre, req.files.songImg, result => {
-      if (result) {
-        
-        music.insertSongsInUserCol(req.session.logged.username, songsFileNames, result => {
+      if (result) {        
+        music.insertSongsInUserCol(req.session.logged.username, songsFileNames, null, result => {
           if (result) {
             req.session.logged.uploadAlert = {
               msg:"Your new song has been uploaded successfully",
@@ -445,7 +483,6 @@ app.post("/upload", upload.fields([{ name:"newSong" }, { name:"songImg" }]), (re
             res.redirect("/userProfile");
           }
         });
-
       } else {
         req.session.logged.uploadAlert = { 
           msg: "Your album couldn´t be uploaded rigth now. Retry it later please",
@@ -465,24 +502,24 @@ app.post("/setProfile", upload.single("profilePic"), (req, res) => {
     profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.bio":req.body.bio }, result => {
       if (result) {
         res.redirect("/home");
-    } else {
-      res.redirect("/error");
-    }
-  });
-  return
+      } else {
+        res.redirect("/error");
+      }
+    });
+    return
   }
 
   // Si el usuario sólo sube su foto y no la bio, se actualiza únicamente ese campo en la db y se retorna
   if (req.file.filename && !req.body.bio) {
-  profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.pic":req.file.filename }, result => {
-    if (result) {
-      res.redirect("/home");
-  } else {
-    res.redirect("/error");
-  }
-    return
-  });  
-}
+    profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.pic":req.file.filename }, result => {
+      if (result) {
+        res.redirect("/home");
+      } else {
+        res.redirect("/error");
+      }
+    });
+    return  
+  } 
     
   // Si el usuario sube ambos datos, se actualizan ambos campos en la db
   profile.updateProfile({ "userdata.username":req.session.logged.username }, { "userdata.profile.bio":req.body.bio }, result => {
@@ -500,33 +537,25 @@ app.post("/setProfile", upload.single("profilePic"), (req, res) => {
       res.redirect("/error");
     }
   });
+  
 }); 
 
 // GET que lleva al album clickeado
 app.get("/album/:album", (req,res) => {
-
-  // Se busca al artista por el nombre de album, para mostrar su nombre en el vista renderizada
-  auth.getUserByAlbum(req.params.album, user => {
-    
-    if (user) {      
-      // Se buscan las canciones pertencientes al album elegido
-      music.getSongsByFilter({ "album.name": req.params.album }, songs => {
-        if (songs) {
-            res.render("album",
-              { 
-                albumName:songs[0].album.name,
-                albumYear:songs[0].album.year,
-                albumCover:songs[0].img,
-                songs, 
-                player:true, 
-                user:req.session.logged,
-                artist:user
-              }
-            );
-          } else {
-          res.redirect("/error");
+  music.getSongsByFilter({ "album.name": req.params.album }, songs => {
+    if (songs) {
+      res.render("album",
+        { 
+          albumName:songs[0].album.name,
+          albumYear:songs[0].album.year,
+          albumCover:songs[0].img,
+          albumGenres:songs[0].genre,
+          artist:songs[0].artist,
+          songs, 
+          user:req.session.logged,
+          player:true
         }
-      });
+      );
     } else {
       res.redirect("/error");
     }
@@ -550,23 +579,17 @@ app.get("/search/:all", (req, res) => {
       tracks.forEach(track => {
         if (track.name.toUpperCase().indexOf(req.params.all.toUpperCase()) == 0) {
           foundSongs.push(track);
-  
         } else if (track.album.name.toUpperCase().indexOf(req.params.all.toUpperCase()) == 0) {
-            
-            if (foundAlbums.every(foundAlbum => foundAlbum.album.name !== track.album.name)) {
+            if (foundAlbums.every(foundAlbum => foundAlbum.album.name !== track.album.name)) { // se chequea que no se repitan albums
               foundAlbums.push(track);
             }
-  
-        } else {
-          console.log("no se encontraron resultados");
-        }    
+        }  
       });
 
       auth.getUsersByFilter({ "userdata.username":{$regex:param} }, users => {
 
         if (users.success) {
           const foundArtists = users.found;
- 
           let searchResultMsg;
 
           if (foundSongs.length == 0 && foundAlbums.length == 0 && foundArtists.length == 0) {
@@ -584,26 +607,23 @@ app.get("/search/:all", (req, res) => {
             searchTitle:searchResultMsg,
             player:true
           });
-          
         } 
-         
-      });
-    
+      });   
     }
   });
 }); 
 
-// Va a contener objeto con detalles de la canción reproduciéndose en el momento
+// Contiene objeto con detalles de la canción reproduciéndose en el momento
 let currentSong; 
 
 // POST AJAX que recibe detalles de la canción reproduciéndose en el momento
 app.post("/playerInfo", (req, res) => {
     currentSong = req.body;
+    console.log(req.body);  
 });
 
 // GET AJAX que envía al front detalles de la canción actual
 app.get("/playerInfo", (req, res) => {
-  console.log(currentSong);
   res.json(currentSong);
   currentSong = null;
 });
@@ -611,5 +631,3 @@ app.get("/playerInfo", (req, res) => {
 app.listen(HTTP_PORT, () => {
   console.log(`Server iniciado en http://localhost:${HTTP_PORT}`);
 });
-
-// FALTA HACER QUE SE VEA MUSIC FOR YOU Y LA OTRO. HACER DOS ENDPOINTS GET

@@ -2,7 +2,6 @@ const mongo = require("./db-const");
 const auth = require("./auth");
 
 //Función que añade los géneros elegidos por el usuario a la base de datos.
-//El tercer parametro es para chequear si se está registrando, o si ya es usuario loggeado
 const addUserGenres = (username, userGenres, cbResult) => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error,client) => {
   
@@ -74,7 +73,6 @@ const getSongsByGenre = (userGenres, cbResult) => {
 }
 
 //Función que busca en la colección music a partir de un filtro, especificándole el campo.
-//params: campo, filtro, callback
 const getSongsByFilter = (object, cbResult) => {
   mongo.mongoClient.connect(mongo.url, mongo.settings, (error, client) => {
     
@@ -185,79 +183,41 @@ const insertSingle = (username, songName, songFileName, genre, songImg, cbResult
       });
     }
   });
-
 }
 
-// Función que actualiza los tracks que hay en el campo usertrack, dentro de la colección users en la db
-const insertSongsInUserCol = (username, songFileNames, cbResult) => {
-  
-  auth.getUser(username, result => {
-    if (result.user) { 
-      
-      //almaceno los tracks del usuario encontrado
-      const userCurrentSongs = result.user.usertracks;
+// Función que actualiza las canciones y albums dentro de la colección users en la db
+const insertSongsInUserCol = (username, songFileNames, albumName, cbResult) => {
+  mongo.mongoClient.connect(mongo.url, mongo.settings, (error,client) => {
 
-      // se unifica en un mismo array las canciones anteriores y nuevas del usuario.
-      for (let i = 0; i = songFileNames.length; i++) {
-        userCurrentSongs.push(songFileNames.shift());
-      }
+    if (error) {
+      cbResult(false);
+    } else {
+      const demusic = client.db("demusic");
+      const usersCollection = demusic.collection("users");
 
-      mongo.mongoClient.connect(mongo.url, mongo.settings, (error,client) => {
-  
+      usersCollection.updateOne({ "userdata.username":username },{$push: {usertracks :{$each:songFileNames} }} , (error, result)=> {
+        
         if (error) {
           cbResult(false);
-        } else {
-          const demusic = client.db("demusic");
-          const usersCollection = demusic.collection("users");
-    
-          usersCollection.updateOne({ "userdata.username":username }, {$set: { usertracks: userCurrentSongs }}, (error, result)=> {
-            
-            if (error) {
-              cbResult(false);
-            } else {
-              cbResult(true);
-            }
-    
-            client.close();
-          });
-        }
-      });
-    } else {
-      cbResult(false);
-    }
-  });
-}
-
-//función que inserta el nombre del album en la colección users
-const insertAlbuminUserCol = (username, albumName, cbResult) => {
-  auth.getUser(username, result => {
-    if (result.user) { 
-      const userCurrentAlbums = result.user.useralbums;
-      userCurrentAlbums.push(albumName);
-
-      mongo.mongoClient.connect(mongo.url, mongo.settings, (error,client) => {
-
-      if (error) {
-        cbResult(false);
-      } else {
-        const demusic = client.db("demusic");
-        const usersCollection = demusic.collection("users");
-
-        usersCollection.updateOne({ "userdata.username":username }, {$set: { useralbums:userCurrentAlbums }}, (error, result)=> {
+        } else if(albumName) {
           
+          usersCollection.updateOne({ "userdata.username":username },{$push: {useralbums :albumName }} , (error, result)=> {
           if (error) {
             cbResult(false);
           } else {
             cbResult(true);
           }
-  
+
           client.close();
         });
-      
-      }
-    });
-  }
+
+        } else {
+          cbResult(true);
+          client.close(); // se ubica acá para que no se cierre la conexión antes del update Album
+        }
+      });
+    }
   });
 }    
 
-module.exports = { getAllGenres, addUserGenres, getSongsByGenre, getSongsByFilter, insertAlbum, insertSingle, insertSongsInUserCol, insertAlbuminUserCol }
+module.exports = { getAllGenres, addUserGenres, getSongsByGenre, getSongsByFilter, insertAlbum, insertSingle, insertSongsInUserCol }

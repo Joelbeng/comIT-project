@@ -1,51 +1,71 @@
-<style>
-  img {
-    max-width:80px;
-  }
-</style>
-
 <main class="home-container">
   {{#if searchTitle}}
     <h4>{{searchTitle}}</h4>
   {{/if}}
   {{#unless searchTitle}}
-    {{#if user.userGenres}}
-      <h2>Music for you</h2>
-      <p>({{user.userGenres}})</p>
+    {{#if user}}
+    <div class="home-title">
+      <div id="music-for-you">
+        <h2>Music for you</h2>
+        <ul>
+        {{#each user.userGenres}}
+          <li>{{this}}</li> 
+        {{/each}}
+        </ul>
+        <a href="/home"></a>
+      </div>
+      <div id="all-songs">
+        <h2>All songs</h2>
+        <a href="/home-all-songs"></a>
+      </div>
+    </div>
+    {{else}}
+    <div class="home-discover">
+      <h2>Discover new songs</h2>
+    </div>
     {{/if}}
   {{/unless}}
+  <div class="home-songs">
   <ul>
   {{#each songs}}
-    <li class="track-li">
+    <li>
       <div class="track-wrapper" data-song-id="{{this.file}}">
         <div class="track-img-container">
           <img src="{{this.img}}">
+          <button class="play-pause-btn" title="Play"><i class="fas fa-play-circle"></i></button>
         </div>
         <div class="track-info">
-          <p>{{this.name}}</p>
-          <a href="/profile/{{this.artist}}">{{this.artist}}</a>
-          <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
-          <div class="track-length">
-            <p class="track-duration"></p>
-          </div>
+          <p class="track-name">{{this.name}}</p>
+          <a class="track-artist" href="/artist/{{this.artist}}">{{this.artist}}</a>
+          {{#if this.album}}
+            <span>·</span>
+            <a class="track-album" href="/album/{{this.album.name}}">{{this.album.name}} ({{this.album.year}})</a>
+          {{/if}}
+        </div>
+        <div class="track-length">
+          <p class="track-duration"></p>
         </div>
       </div>
     </li>
   {{/each}}
   {{#if foundSongs}}
    {{#each foundSongs}}
-    <li class="trackFound-li">
+    <li>
       <div class="track-wrapper" data-song-id="/{{this.file}}">
         <div class="track-img-container">
           <img src="/{{this.img}}">
+          <button class="play-pause-btn" title="Play"><i class="fas fa-play-circle"></i></button>
         </div>
         <div class="track-info">
-          <p>{{this.name}}</p>
-          <a href="/profile/{{this.artist}}">{{this.artist}}</a>
-          <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
-          <div class="track-length">
-            <p class="track-duration"></p>
-          </div>
+          <p class="track-name">{{this.name}}</p>
+          <a class="track-artist" href="/artist/{{this.artist}}">{{this.artist}}</a>
+          {{#if this.album}}
+          <span> · </span>
+          <a href="/album/{{this.album.name}}" class="track-album">{{this.album.name}} {{this.album.year}}</a>
+          {{/if}}
+        </div>
+        <div class="track-length">
+          <p class="track-duration"></p>
         </div>
       </div>
     </li>
@@ -53,14 +73,14 @@
   {{/if}}
   {{#if foundArtists}}
   {{#each foundArtists}}
-    <li class="artist-li">
+    <li>
       <div class="artist-wrapper">
-        <div class="artist-img-container">
+        <div class="artist-search-img">
           <img src="/img/profile/{{this.userdata.profile.pic}}">
-          <p>Artista</p>
         </div>
-        <div class="artist-info">
-          <a href="/profile/{{this.userdata.username}}">{{this.userdata.username}}</a>
+        <div class="artist-search-info">
+          <a href="/artist/{{this.userdata.username}}">{{this.userdata.username}}</a>
+          <p>artist</p>
         </div>
       </div>
     </li>
@@ -70,13 +90,13 @@
   {{#each foundAlbums}}
     <li class="album-li">
       <div class="album-wrapper">
-        <div class="album-img-container">
+        <div class="album-search-img">
           <img src="/{{this.img}}">
-          <p>Album</p>
         </div>
-        <div class="album-info">
-          <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
-          <a href="/profile/{{this.artist}}">{{this.artist}}</a>
+        <div class="album-search-info">
+          <a href="/album/{{this.album.name}}">{{this.album.name}}</a>
+          <p>{{this.album.year}}</p>
+          <span>Album by </span><a href="/artist/{{this.artist}}">{{this.artist}}</a>
         </div>
       </div>
     </li>
@@ -84,4 +104,24 @@
   {{/if}}
   </ul>
 </main>
+{{#if user}}
+<script>
 
+  //Recibe un string desde back que indica el endpoint y título seleccionado por user
+  const showActiveTitle = () => {
+    const titleSelected = "{{title}}";
+
+    if (!titleSelected) return;
+    console.log(titleSelected);
+    if (titleSelected.indexOf("allSongs") > -1) {
+      document.getElementById("music-for-you").classList.remove("selected-title");
+      document.getElementById("all-songs").classList.add("selected-title");
+    } else {
+      document.getElementById("music-for-you").classList.add("selected-title");
+      document.getElementById("all-songs").classList.remove("selected-title");
+    }
+  }
+
+  showActiveTitle();
+</script>
+{{/if}}

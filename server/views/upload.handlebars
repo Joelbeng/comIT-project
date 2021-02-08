@@ -1,27 +1,17 @@
 <main class="upload-container"> 
   <form method="POST" action="/upload" enctype="multipart/form-data">
     <div class="file-select">  
-      <label for="new-song">Choose your song</label>
+      <h2>Upload your song/s</h2>
+      <button type="button" id="upload-song">UPLOAD</button>
       <input type="file" name="newSong" id="new-song" accept="audio/mp3" multiple required>
     </div>  
-    <div class="new-song-img">
-      <label for="new-song-img">Choose image</label>
-      <input type="file" name="songImg" id="new-song-img" accept="image/*">
-    </div>
     <div class="new-song-info">
-      <label for="new-song-genre">Genre:</label>
-      <select id="new-song-genre" name="songGenre" multiple required>
-        {{#each genres as |genre|}}
-        <option value="{{genre}}">{{genre}}</option>
-        {{/each}}
-      </select>
-      <div class="new-song-details"></div>  
     </div>
-    <div class="submit-buttons">
-      <a href="/upload">Cancel</a>
-      <input type="submit" value="Ready">
-    </div> 
   </form>
 </main>
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script>
+  const genres = "{{genres}}".split(","); // guardo array de géneros que recibo del back y los paso al script, para crear select
+</script>
 <script src="script/upload.js"></script>

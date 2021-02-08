@@ -9,7 +9,7 @@ const updateProfile = (comparator, updateContent, cbResult) => {
       const demusic = client.db("demusic");
       const usersCollection = demusic.collection("users");
       
-      usersCollection.updateOne(comparator, { $set: updateContent}, (errror, result) => {
+      usersCollection.updateOne(comparator, { $set: updateContent }, (errror, result) => {
 
         if (error) {
           cbResult(false);

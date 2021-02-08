@@ -5,7 +5,7 @@ const hideUploadMsg = () => {
 
   if (!successUpload && !failUpload) return;
 
-  if (document.body.contains(successUpload)) {
+  if (successUpload) {
     setTimeout(() => {
       successUpload.style.top = "-150px";
     }, 5000);

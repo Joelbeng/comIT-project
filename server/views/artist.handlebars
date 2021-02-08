@@ -1,28 +1,59 @@
-  <section class="user-info">  
+<main class="artist-profile-container">  
+  <section class="artist-presentation">  
     <div class="profile-pic">
       <img src="/img/profile/{{artist.profile.pic}}">
     </div>
-    <div class="user-bio">
+    <div id="user-bio">
       <h3>{{artist.username}}</h3> 
       <p>{{artist.profile.bio}}</p> 
     </div>
   </section>
-  <section class="user-songs">
-  <ul>
-  {{#each songs}}
-    <li>
-      <div class="track-wrapper" data-song-id="{{this.file}}"> 
-        <div class="track-img-container">
-          <img src="/{{this.img}}">
-        </div>
-        <div class="track-info">
-          <p>{{this.name}}</p>
-          <a href="#" class="link">{{this.artist}}</a>
-          <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
-          <p class="track-duration"></p>
-        </div>
-      </div>
-    </li>
-  {{/each}}
-  </ul>
+  <section class="user-records">
+    <div class="user-records-selection">
+      <button id="songs" class="selected-title">Songs</button>
+      <button id="albums">Albums</button>
+    </div>
+    <div class="user-songs">
+      <h4>Songs</h4>
+      {{#if songs}}
+      <ul>
+      {{#each songs}}
+        <li class="track-li">
+          <div class="track-wrapper" data-song-id="{{this.file}}"> 
+            <div class="track-img-container">
+              <img src="/{{this.img}}">
+              <button class="play-pause-btn" title="Play"><i class="fas fa-play-circle"></i></button>
+            </div>
+            <div class="track-info">
+              <p class="track-name">{{this.name}}</p>
+              {{#if this.album}}
+              <a href="/album/{{this.album.name}}">{{this.album.name}} ({{this.album.year}})</a>
+              {{/if}}
+            </div>
+            <div class="track-length">
+              <p class="track-duration"></p>
+            </div>
+          </div>
+        </li>
+      {{/each}}
+      </ul>
+      {{/if}}
+    </div>
+    <div class="user-albums">
+      <h4>Albums</h4>
+      {{#if albums}}
+        <ul>
+          {{#each albums}}
+          <li>
+            <img src="/{{this.img}}">
+            <p>{{this.name}}</p>
+            <p>{{this.year}}</p>
+            <a href="/album/{{this.name}}"></a>
+          </li>
+          {{/each}}
+        </ul>
+      {{/if}}
+    </div>
   </section>
+</main>
+<script src="/script/hide.js"></script>

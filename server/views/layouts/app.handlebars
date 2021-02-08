@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.0/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" >
+<link rel="stylesheet" href="/css/style.css">
+{{#if user}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet">
+{{/if}}
+<body>
+  <header>
+    <div class="header">
+      <nav class="home-nav container">
+        {{#if user}}
+        <div class="header-left">
+          <div class="logo">
+            <a href="/home"><img src="/img/logo.svg"></a>
+          </div>    
+          <a href="/home" class="logged-home {{ homeActive }}">Home</a>    
+        </div>  
+        <div class="header-middle">
+          <input type="text" id="search-bar" placeholder="Search songs, artist, ...">
+          <button title="search" id="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+        <div class="header-right">
+          <a href="/upload" class="{{ uploadActive }}">Upload</a>
+          <button id="drop-btn" class="drop-btn-part">
+            <img src="/img/profile/{{ user.avatarImg }}" alt={{ user.username }} class="drop-btn-part">
+            <p class="drop-btn-part">{{ user.username }}</p>
+            <span><i class="fas fa-chevron-down drop-btn-part"></i></span>
+          </button>
+          <div id="dropdown" class="drop-items">
+            <ul>
+              <li><a href="/userProfile">My profile</a></li>
+              <li><a href="/setProfile">Edit bio</a></li>
+              <li><a href="/genres">My genres</a></li>
+              <li><a href="/signOut">Sign Out</a></li>
+            </ul>
+          </div>
+          <button id="open-menu">☰</button>
+          <div class="overlay-menu">
+            <button id="close-menu-btn"><i class="fas fa-times"></i></button>
+            <nav>
+              <ul>
+                <li><a href="/upload">Upload</a></li>
+                <li><a href="/userProfile">My profile</a></li>
+                <li><a href="/setProfile">Edit bio</a></li>
+                <li><a href="/genres">My genres</a></li>
+                <li><a href="/signOut">Sign Out</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+        {{else}}
+        <div class="header-left">
+          <div class="logo">
+            <a href="/"><img src="/img/logo.svg"></a>
+          </div>        
+          <a href="/home" class="{{ homeActive }}">Home</a>    
+        </div>  
+        <div class="header-middle">
+          <input type="text" id="search-bar" placeholder="Search songs, artist, ...">
+          <button title="search" id="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+        <div class="header-right">
+          <a href="/login">Upload</a>
+          <a href="/login">Log In</a>
+          <a href="/register">Register</a>
+        </div>
+        {{/if}}
+      </nav>
+    </div>
+  </header>
+  <div class="container">
+  {{{body}}}
+  </div>
+  {{#if player}}
+  <div id="player" data-id="">
+    <div class="player-left">
+      <div id="track-box">
+        <div class="img-wrapper">
+          <img id="track-img-box" src="" alt="">
+        </div>
+        <div id="track-info-box">
+          <p id="track-title-box" title=""></p>
+          <a id="track-artist-box" href=""></a>
+        </div>
+      </div>
+    </div>
+    <div class="player-middle">
+      <div id="player-buttons">
+        <button id="previous-btn" onclick="playPrevious()" title="Previous"><i class="fas fa-step-backward"></i></button>
+        <button id="play-pause-btn" onclick="playPause()" title="Play"><i class="far fa-play-circle"></i></button>
+        <button id="next-btn" onclick="playNext()" title="Next"><i class="fas fa-step-forward"></i></button>
+      </div>
+      <div id="track-bar">
+        <div id="track-progress">
+          <p id="track-actual-time"></p>
+          <p id="track-full-time"></p>
+        </div>
+      </div>
+    </div>
+    <div class="player-right">  
+      <div class="volume-slider">
+        <button id="volume-btn"><i class="fas fa-volume-up"></i></button>
+        <input type="range" id="volume-input" min="0" max="1" step="0.01">
+      </div>
+    </div>
+  </div>
+
+  <script src="/script/player.js"></script>
+  {{/if}}
+  <script src="/script/search-endpoint.js"></script>
+  {{#if user}}
+  <div id="full-overlay"></div>
+  <script src="/script/menus.js"></script>
+  {{/if}}
+</body>
+</html>

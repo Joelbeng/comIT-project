@@ -1,22 +1,33 @@
 <main class="genres-container">
   <h2>Hi {{user.username}}! What kind of music would you like to listen to?</h2>
-  <div class="outside-box">
-    <div id="genre-container">
-      {{#each genres as |genre|}}
-        <div class="genre-box" data-genre="{{ genre }}">
-          <h3>{{ genre }}</h3>
+  <ul class="selected-genres">
+    {{#each user.userGenres}}
+    <li role="button" title="remove"><span><i class="fas fa-times"></i></span>{{ this }}</li>
+    {{/each}}
+  </ul>
+  <div class="genres-out-box">
+    <ul class="genres-in-box">
+      {{#each genres}}
+      <li>
+        <div class="genre-box" data-genre="{{ this }}">
+          <h3>{{ this }}</h3>
         </div>
+      </li>
       {{/each}}
-    </div>
-    <a id="exit-btn" href="/home">Cancel</a>
+    </ul>
+  </div>
+  <div id="genres-buttons">
     <a id="ready-btn" href="javascript:void(0)">Ready</a>
   </div>
 </main>
 
-<script src="script/genres.js"></script>
+<script src="/script/genres.js"></script>
 <script>
   window.onload = () => {
     showActualUserGenres();
+    addAndRemoveGenres();
+    groupSelectedGenres();
+    addClickListenerToOldPills();
   }
 
   // Función que resalta los géneros elegidos anteriormente por el usuario
@@ -25,19 +36,20 @@
     
     // Si el usuario no tiene géneros elegidos, se cambia el texto y la ruta del botón cancelar. Se sale de la función
     if (!userGenres) {
-      document.getElementById("exit-btn").textContent = "Later";
-      document.getElementById("exit-btn").href ="/setProfile";
+      createLaterBtn();
       return;
     }  
     
     const actualGenres = userGenres.split(",");
+    const genreBoxes = document.getElementsByClassName("genre-box");
 
     actualGenres.forEach(genre => {
-      boxesArr.forEach(box => {
-        if (genre === box.getAttribute("data-genre")){
-          box.classList.add("active-genre");
+      for (let i = 0; i < genreBoxes.length; i++) {
+        if (genre === genreBoxes[i].getAttribute("data-genre")){
+          genreBoxes[i].classList.add("active-genre");
+          break;
         }
-      });
+      }
     });
   }
 </script>

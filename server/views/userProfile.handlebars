@@ -29,39 +29,65 @@
 </style>
 
 <main class="my-profile-container">  
-  <section class="user-info">  
-    <div class="user-presentation">
-      <div class="profile-pic">
-        <img src="img/profile/{{user.avatarImg}}">
-      </div>
-      <div class="user-bio">
-      <h3>{{user.username}}</h3>
-      <p>{{userBio}}</p>
-      </div>
+  <section class="my-presentation">  
+    <div class="profile-pic">
+      <img src="img/profile/{{user.avatarImg}}">
     </div>
-    <div class="edit">
-      <a href="/genres">My Genres</a>
-      <a href="/setProfile">Edit Bio</a>
-     </div>
+    <div id="user-bio" class="my-info">
+    <h3>{{user.username}}</h3>
+    <p>{{userBio}}</p>
+    </div>
+    <div class="user-edit">
+    <a href="/genres">My Genres</a>
+    <a href="/setProfile">Edit Bio</a>
+    </div>
   </section>
-  <section class="user-songs">
-    <ul>
-    {{#each songs}}
-      <li class="track-li">
-        <div class="track-wrapper" data-song-id="{{this.file}}">
-          <div class="track-img-container">
-            <img src="{{this.img}}">
+  <section class="user-records">
+    <div class="user-records-selection">
+      <button id="songs" class="selected-title">Songs</button>
+      <button id="albums">Albums</button>
+    </div>
+    <div class="user-songs">
+      <h4>Songs</h4>
+      {{#if songs}}
+      <ul>
+      {{#each songs}}
+        <li class="track-li">
+          <div class="track-wrapper" data-song-id="{{this.file}}">
+            <div class="track-img-container">
+              <img src="{{this.img}}">
+              <button class="play-pause-btn" title="Play"><i class="fas fa-play-circle"></i></button>
+            </div>
+            <div class="track-info">
+              <p class="track-name">{{this.name}}</p>
+              {{#if this.album}}
+              <a href="/album/{{this.album.name}}">{{this.album.name}} ({{this.album.year}})</a>
+              {{/if}}
+            </div>
+            <div class="track-length">
+              <p class="track-duration"></p>
+            </div>
           </div>
-          <div class="track-info">
-            <p>{{this.name}}</p>
-            <a href="#">{{this.artist}}</a>
-            <a href="/album/{{this.album.name}}">{{this.album.name}}, {{this.album.year}}</a>
-            <p class="track-duration"></p>
-          </div>
-        </div>
-      </li>
-    {{/each}}
-    </ul>
+        </li>
+      {{/each}}
+      </ul>
+      {{/if}}
+    </div>
+    <div class="user-albums">
+      <h4>Albums</h4>
+      {{#if albums}}
+      <ul>
+      {{#each albums}}
+        <li>        
+          <img src="/{{this.img}}">
+          <p>{{this.name}}</p>
+          <p>{{this.year}}</p>
+          <a href="/album/{{this.name}}"></a>
+        </li>
+        {{/each}}
+        {{/if}}
+      </ul>
+    </div>
   </section>
   {{#if uploadMsg}}
     <div id={{uploadMsg.id}}>
@@ -71,3 +97,4 @@
 </main>
 
 <script src="script/uploadMsg.js"></script>
+<script src="script/hide.js"></script>

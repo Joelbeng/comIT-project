@@ -3,29 +3,38 @@
     <div class="album-pic">
       <img src="/{{albumCover}}">
     </div>
-    <div class="album-data">
-      <h3>{{albumName}}</h3> 
-      <p>{{albumYear}}</p> 
+    <div class="album-info">
+      <div class="album-main-data">
+        <h3>{{albumName}}</h3>  
+        <p>by <a href="/artist/{{this.artist}}">{{artist}}</a></p>
+      </div>
+      <ul class="album-detail">
+        <li>{{songs.length}} songs</li>
+        <li id="album-duration"></li>
+        <li>{{albumYear}}</li>
+      </ul>
     </div>
   </section>
-  <section class="artist-songs">
-    <h4>{{artist.userdata.username}}</h4>
-  <ul>
-  {{#each songs}}
-    <li class="track-li">
-      <div class="track-wrapper" data-song-id="{{this.file}}"> 
-        <div class="track-img-container">
-          <img src="/{{this.img}}">
+  <section class="album-songs">
+    <ul>
+    {{#each songs}}
+      <li class="track-li">
+        <div class="track-wrapper" data-song-id="{{this.file}}"> 
+          <div class="track-img-container">
+            <img src="/{{this.img}}">
+            <button class="play-pause-btn" title="Play"><i class="fas fa-play-circle"></i></button>
+          </div>
+          <div class="track-info">
+            <p class="track-name">{{this.name}}</p>
+            <a class="track-artist" href="/artist/{{this.artist}}">{{this.artist}}</a>
+          </div>
+          <div class="track-length">
+            <p class="track-duration"></p>
+          </div>
         </div>
-        <div class="track-info">
-          <p>{{this.name}}</p>
-          <a href="/profile/{{this.artist}}">{{this.artist}}</a>
-          <a href="#">{{this.album.name}}, {{this.album.year}}</a>
-          <p class="track-duration"></p>
-        </div>
-      </div>
-    </li>
-  {{/each}}
-  </ul>
+      </li>
+    {{/each}}
+    </ul>
   </section>
-</main>
+</main> 
+<script src="/script/albumDuration.js"></script>
