@@ -1,6 +1,15 @@
 # Demusic - Proyecto Final ComIt
 
 App para reproducir música, subir canciones o albumes.
+#f6f8fa
+Pre-requisito:
+ Tener Node instalado.
+
+Instalación:
+1. Clonar el repositorio: "git clone "
+2. Ubicarnos con la consola en la carpeta clonada.
+3. Ingresar en la terminal "npm install".
+4. Ingresar en la terminal "npm start".
 
 Tecnologías utilizadas:
 
@@ -11,16 +20,4 @@ Tecnologías utilizadas:
 * Express.js
 * Handlebars
 * MongoDB
-* 
-
-Requisito:
-- Tener Node instalado.
-
-Instalación:
-1. Clonar el repositorio.
-2. Ubicarnos con la consola de Git en la carpeta clonada.
-3. Ingresar en la terminal "npm install".
-4. Ingresar en la terminal "npm start".
-
-
 
