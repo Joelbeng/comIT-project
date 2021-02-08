@@ -2,6 +2,17 @@
 
 App para reproducir música, subir canciones o albumes.
 
+Tecnologías utilizadas:
+
+* HTML5
+* CSS3
+* Javascript
+* Nodejs
+* Express.js
+* Handlebars
+* MongoDB
+* 
+
 Requisito:
 - Tener Node instalado.
 
