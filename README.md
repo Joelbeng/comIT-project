@@ -1,11 +1,11 @@
 # Demusic - Proyecto Final ComIt
 
-App para reproducir música, subir canciones o albumes.
+App para reproducir música, subir canciones(.mp3) o albumes.
 
-Pre-requisito:
+### Pre-requisito:
  * Tener Node instalado.
 
-Instalación:
+### Instalación:
 1. Clonar el repositorio: 
 ```
 git clone https://github.com/Joelbeng/comIT-project.git
@@ -16,7 +16,7 @@ npm install
 npm start
  ```
 
-Tecnologías utilizadas:
+### Tecnologías utilizadas:
 * HTML5
 * CSS3
 * Javascript
@@ -26,3 +26,7 @@ Tecnologías utilizadas:
 * MongoDB
 * Multer
 
+### Tareas a desarrollar:
+
+* Desarrollar la UI
+* Terminar de maquetar vista de edicion de bio
