@@ -7,7 +7,9 @@ Pre-requisito:
 
 Instalación:
 1. Clonar el repositorio: 
-```git clone https://github.com/Joelbeng/comIT-project.git```
+```
+git clone https://github.com/Joelbeng/comIT-project.git
+```
 2. Ubicarnos con la consola en la carpeta clonada e ingresar en la terminarl :
 ```
 npm install
