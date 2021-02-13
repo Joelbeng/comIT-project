@@ -10,7 +10,7 @@ App para reproducir música, subir canciones(.mp3) o albumes.
 ```
 git clone https://github.com/Joelbeng/comIT-project.git
 ```
-2. Ubicarnos con la consola en la carpeta clonada e ingresar en la terminarl :
+2. Ubicarnos con la consola en la carpeta clonada e ingresar en la terminal :
 ```
 npm install
 npm start
