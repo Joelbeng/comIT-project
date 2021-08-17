@@ -260,11 +260,20 @@ app.get("/userProfile", (req, res) => {
 
 // Página para añadir foto y bio al perfil del usuario 
 app.get("/setProfile", (req, res) => {
-  res.render("setProfile", 
-    { 
-      user:req.session.logged,
-      player:false 
-    });
+
+  auth.getUser(req.session.logged.username, result => {
+    if (!result.success) {
+      res.redirect("/error");
+      return;
+    }
+
+    res.render("setProfile", 
+      { 
+        user:req.session.logged,
+        userBio:result.user.userdata.profile.bio,
+        player:false 
+      });
+  });
 });
 
 // Perfil del artista seleccionado 

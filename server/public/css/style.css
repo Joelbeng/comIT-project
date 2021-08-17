@@ -516,6 +516,7 @@ a {
 
 #player-buttons button {
   margin:0 12px;
+  padding:2px;
 }
 
 #player-buttons button:not(:nth-child(2)){
@@ -613,8 +614,8 @@ p.track-duration {
   border: none;
   background-color: transparent;
   position: absolute;
-  left: 32px;
-  top: 41px;
+  left: 50px;
+  top: 48px;
   transform: scale(2.5);
   display:none;
   z-index:1;
@@ -773,6 +774,14 @@ p.track-duration {
   display:none;
 }
 
+.file-select > p{
+  font-size:13px;
+  margin-top:2em;
+}
+
+.file-select a {
+ text-decoration: underline;
+}
 .upload-form-buttons {
   text-align: center;
 }
@@ -791,7 +800,7 @@ p.track-duration {
   padding: 8px 32px;
   color: #fff;
   border-radius: 5px;
-  margin-top: 2em;
+  margin-top: 1em;
   font-size: 14px;
 }
 

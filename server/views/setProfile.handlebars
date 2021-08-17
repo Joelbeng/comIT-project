@@ -4,10 +4,11 @@
     <form method="post" action="/setProfile" enctype="multipart/form-data">
       <div class="photo-selection">
         <input type="file" name="profilePic" value="add photo" accept="image/*">
+        <img src="img/profile/{{user.avatarImg}}">
       </div>
       <div class="bio-text">
         <h5>Bio:</h5>
-        <textarea name="bio" cols="70" row="5"></textarea>
+        <textarea name="bio" cols="70" row="5">{{userBio}}</textarea>
       </div>
       <a href="/home">Later</a>
       <input type="submit" value="Ready">

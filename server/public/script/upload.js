@@ -6,7 +6,7 @@ const createAndShowNewElements= () => {
   const form = document.getElementsByTagName("form")[0];
   
   const divImage = document.createElement("div");
-  const h3Image = document.createElement("h3");
+  const pImage = document.createElement("p");
   const imageButton = document.createElement("button");
   const inputImage = document.createElement("input");
 
@@ -43,11 +43,11 @@ const createAndShowNewElements= () => {
   });
 
   imageButton.textContent = "Select your Image";
-  h3Image.textContent = "Upload a cover image";
+  pImage.textContent = "Upload a cover image";
 
   divPreview.appendChild(previewImg);
 
-  divImage.appendChild(h3Image);
+  divImage.appendChild(pImage);
   divImage.appendChild(imageButton);
   divImage.appendChild(divPreview);
   div.appendChild(divImage);
@@ -146,9 +146,9 @@ const createAndShowNewElements= () => {
     label.setAttribute("for","song-name"+i);
     
     if (files.length === 1) {
-      label.textContent = "song title";
+      label.textContent = "Song Title";
     } else {
-      label.textContent = `${i+1}. song title`;
+      label.textContent = `${i+1}. Song Title`;
     }
 
     const songNameInput = document.createElement("input");
